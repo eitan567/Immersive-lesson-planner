@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card.tsx";
+import { Card, CardContent } from "../../../components/ui/card.tsx";
 import { Label } from "../../../components/ui/label.tsx";
 import { Textarea } from "../../../components/ui/textarea.tsx";
 import { Button } from "../../../components/ui/button.tsx";
@@ -10,16 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../components/ui/select.tsx";
-
-interface LessonSection {
-  content: string;
-  screens: {
-    screen1: string;
-    screen2: string;
-    screen3: string;
-  };
-  spaceUsage: string;
-}
+import type { LessonSection } from '../types.ts';
+import { AssistantChatBox } from '../../ai-assistant/components/AssistantChatBox.tsx';
 
 interface LessonPhaseProps {
   phase: 'opening' | 'main' | 'summary';
@@ -29,115 +21,124 @@ interface LessonPhaseProps {
   onUpdateSection: (phase: 'opening' | 'main' | 'summary', index: number, updates: Partial<LessonSection>) => void;
 }
 
-const LessonPhase = ({ phase, title, sections, onAddSection, onUpdateSection }: LessonPhaseProps) => {
+const ScreenTypeSelect = ({ 
+  value, 
+  onChange, 
+  screenNumber 
+}: { 
+  value: string; 
+  onChange: (value: string) => void; 
+  screenNumber: string;
+}) => (
+  <div>
+    <Label>מסך {screenNumber}</Label>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger>
+        <SelectValue placeholder="בחר תצוגה" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="video">סרטון</SelectItem>
+        <SelectItem value="image">תמונה</SelectItem>
+        <SelectItem value="padlet">פדלט</SelectItem>
+        <SelectItem value="website">אתר</SelectItem>
+        <SelectItem value="genially">ג'ניאלי</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+);
+
+const LessonPhase = ({ 
+  phase, 
+  title, 
+  sections, 
+  onAddSection, 
+  onUpdateSection 
+}: LessonPhaseProps) => {
   return (
     <Card className="mt-4">
-      <CardHeader>
-        <CardTitle className="text-right">{title}</CardTitle>
-      </CardHeader>
       <CardContent>
+        <h3 className="text-lg font-semibold mb-4 text-right">{title}</h3>
         <div className="space-y-4">
           {sections.map((section, index) => (
             <Card key={index} className="p-4">
               <div className="space-y-4 rtl">
                 <div className="text-right">
                   <Label className="text-right">תוכן/פעילות</Label>
-                  <Textarea
-                    value={section.content}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                      onUpdateSection(phase, index, { content: e.target.value });
-                    }}
-                    placeholder="תאר את הפעילות"
-                    className="text-right"
-                    dir="rtl"
+                  <div className="space-y-2">
+                    <Textarea
+                      value={section.content}
+                      onChange={(e) => onUpdateSection(phase, index, { content: e.target.value })}
+                      placeholder="תאר את הפעילות"
+                      className="text-right"
+                      dir="rtl"
+                    />
+                    <AssistantChatBox
+                      context={section.content}
+                      onApplySuggestion={(suggestion) => 
+                        onUpdateSection(phase, index, { content: suggestion })
+                      }
+                      placeholder="צור תיאור פעילות חדש"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <ScreenTypeSelect
+                    value={section.screens.screen1}
+                    onChange={(value) => 
+                      onUpdateSection(phase, index, { 
+                        screens: { ...section.screens, screen1: value } 
+                      })
+                    }
+                    screenNumber="1"
+                  />
+                  <ScreenTypeSelect
+                    value={section.screens.screen2}
+                    onChange={(value) => 
+                      onUpdateSection(phase, index, { 
+                        screens: { ...section.screens, screen2: value } 
+                      })
+                    }
+                    screenNumber="2"
+                  />
+                  <ScreenTypeSelect
+                    value={section.screens.screen3}
+                    onChange={(value) => 
+                      onUpdateSection(phase, index, { 
+                        screens: { ...section.screens, screen3: value } 
+                      })
+                    }
+                    screenNumber="3"
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label>מסך 1</Label>
-                    <Select
-                      value={section.screens.screen1}
-                      onValueChange={(value: string) => {
-                        onUpdateSection(phase, index, {
-                          screens: { ...section.screens, screen1: value }
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="בחר תצוגה" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="video">סרטון</SelectItem>
-                        <SelectItem value="image">תמונה</SelectItem>
-                        <SelectItem value="padlet">פדלט</SelectItem>
-                        <SelectItem value="website">אתר</SelectItem>
-                        <SelectItem value="genially">ג'ניאלי</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>מסך 2</Label>
-                    <Select
-                      value={section.screens.screen2}
-                      onValueChange={(value: string) => {
-                        onUpdateSection(phase, index, {
-                          screens: { ...section.screens, screen2: value }
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="בחר תצוגה" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="video">סרטון</SelectItem>
-                        <SelectItem value="image">תמונה</SelectItem>
-                        <SelectItem value="padlet">פדלט</SelectItem>
-                        <SelectItem value="website">אתר</SelectItem>
-                        <SelectItem value="genially">ג'ניאלי</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>מסך 3</Label>
-                    <Select
-                      value={section.screens.screen3}
-                      onValueChange={(value: string) => {
-                        onUpdateSection(phase, index, {
-                          screens: { ...section.screens, screen3: value }
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="בחר תצוגה" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="video">סרטון</SelectItem>
-                        <SelectItem value="image">תמונה</SelectItem>
-                        <SelectItem value="padlet">פדלט</SelectItem>
-                        <SelectItem value="website">אתר</SelectItem>
-                        <SelectItem value="genially">ג'ניאלי</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+
                 <div>
                   <Label>שימוש במרחב הפיזי</Label>
-                  <Select
-                    value={section.spaceUsage}
-                    onValueChange={(value: string) => {
-                      onUpdateSection(phase, index, { spaceUsage: value });
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="בחר סוג עבודה" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="whole">מליאה</SelectItem>
-                      <SelectItem value="groups">עבודה בקבוצות</SelectItem>
-                      <SelectItem value="individual">עבודה אישית</SelectItem>
-                      <SelectItem value="mixed">משולב</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-2">
+                    <Select
+                      value={section.spaceUsage}
+                      onValueChange={(value) => 
+                        onUpdateSection(phase, index, { spaceUsage: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="בחר סוג עבודה" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="whole">מליאה</SelectItem>
+                        <SelectItem value="groups">עבודה בקבוצות</SelectItem>
+                        <SelectItem value="individual">עבודה אישית</SelectItem>
+                        <SelectItem value="mixed">משולב</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <AssistantChatBox
+                      context={section.spaceUsage}
+                      onApplySuggestion={(suggestion) => 
+                        onUpdateSection(phase, index, { spaceUsage: suggestion })
+                      }
+                      placeholder="הצע שימוש במרחב"
+                    />
+                  </div>
                 </div>
               </div>
             </Card>

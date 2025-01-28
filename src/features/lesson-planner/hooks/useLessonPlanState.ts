@@ -1,93 +1,144 @@
 /// <reference lib="dom" />
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../auth/AuthContext.tsx';
+import type { LessonPlan, LessonPlanSections } from '../types.ts';
+import { lessonPlanService } from '../services/lessonPlanService.ts';
 
-interface ScreenConfig {
-  screen1: string;
-  screen2: string;
-  screen3: string;
-}
-
-interface LessonSection {
-  content: string;
-  screens: {
-    screen1: string;
-    screen2: string;
-    screen3: string;
-  };
-  spaceUsage: string;
-}
-
-interface LessonPlan {
-  topic: string;
-  duration: string;
-  gradeLevel: string;
-  priorKnowledge: string;
-  position: string;
-  contentGoals: string;
-  skillGoals: string;
+const createEmptyLessonPlan = (userId: string): Omit<LessonPlan, 'id' | 'created_at' | 'updated_at'> => ({
+  userId,
+  topic: '',
+  duration: '',
+  gradeLevel: '',
+  priorKnowledge: '',
+  position: '',
+  contentGoals: '',
+  skillGoals: '',
   sections: {
-    opening: LessonSection[];
-    main: LessonSection[];
-    summary: LessonSection[];
-  };
-}
+    opening: [],
+    main: [],
+    summary: []
+  }
+});
 
 const useLessonPlanState = () => {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
-  const [lessonPlan, setLessonPlan] = useState<LessonPlan>({
-    topic: '',
-    duration: '',
-    gradeLevel: '',
-    priorKnowledge: '',
-    position: '',
-    contentGoals: '',
-    skillGoals: '',
-    sections: {
-      opening: [],
-      main: [],
-      summary: []
-    }
-  });
+  const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saveInProgress, setSaveInProgress] = useState(false);
 
-  const handleBasicInfoChange = (field: string, value: string) => {
-    setLessonPlan(prev => ({
-      ...prev,
+  // Initialize or load existing lesson plan
+  useEffect(() => {
+    const initializeLessonPlan = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        // In the future, we might want to load the last edited plan
+        const emptyPlan = createEmptyLessonPlan(user.id);
+        const created = await lessonPlanService.createLessonPlan(emptyPlan);
+        setLessonPlan(created);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to initialize lesson plan');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeLessonPlan();
+  }, [user]);
+
+  const handleBasicInfoChange = async (field: keyof LessonPlan, value: string) => {
+    if (!lessonPlan || !user) return;
+
+    const updatedPlan = {
+      ...lessonPlan,
       [field]: value
-    }));
+    };
+
+    setLessonPlan(updatedPlan);
+
+    if (lessonPlan.id && !saveInProgress) {
+      try {
+        setSaveInProgress(true);
+        await lessonPlanService.updateLessonPlan(lessonPlan.id, { [field]: value });
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to save changes');
+      } finally {
+        setSaveInProgress(false);
+      }
+    }
   };
 
-  const addSection = (phase: keyof typeof lessonPlan.sections) => {
-    setLessonPlan(prev => ({
-      ...prev,
-      sections: {
-        ...prev.sections,
-        [phase]: [...prev.sections[phase], {
-          content: '',
-          screens: {
-            screen1: '',
-            screen2: '',
-            screen3: ''
-          },
-          spaceUsage: ''
-        }]
+  const updateSections = async (newSections: LessonPlanSections) => {
+    if (!lessonPlan || !user) return;
+
+    const updatedPlan = {
+      ...lessonPlan,
+      sections: newSections
+    };
+
+    setLessonPlan(updatedPlan);
+
+    if (lessonPlan.id && !saveInProgress) {
+      try {
+        setSaveInProgress(true);
+        await lessonPlanService.updateLessonPlan(lessonPlan.id, { sections: newSections });
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to save sections');
+      } finally {
+        setSaveInProgress(false);
       }
-    }));
+    }
+  };
+
+  const addSection = async (phase: keyof LessonPlanSections) => {
+    if (!lessonPlan || !user) return;
+
+    const newSection = {
+      content: '',
+      screens: {
+        screen1: '',
+        screen2: '',
+        screen3: ''
+      },
+      spaceUsage: ''
+    };
+
+    const updatedSections = {
+      ...lessonPlan.sections,
+      [phase]: [...lessonPlan.sections[phase], newSection]
+    };
+
+    updateSections(updatedSections);
   };
 
   const handleExport = () => {
-    const text = generateLessonPlanText();
-    const blob = new Blob([text], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `תכנית_שיעור_${lessonPlan.topic || 'חדש'}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    try {
+      const text = generateLessonPlanText();
+      const fileName = `תכנית_שיעור_${lessonPlan?.topic || 'חדש'}.txt`;
+      const file = new File([text], fileName, { type: 'text/plain' });
+      const url = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to export lesson plan');
+    }
   };
 
   const generateLessonPlanText = () => {
+    if (!lessonPlan) return '';
+
     let text = `תכנית שיעור: ${lessonPlan.topic}\n\n`;
     text += `זמן כולל: ${lessonPlan.duration}\n`;
     text += `שכבת גיל: ${lessonPlan.gradeLevel}\n`;
@@ -129,16 +180,12 @@ const useLessonPlanState = () => {
     return text;
   };
 
-  const updateSections = (newSections: typeof lessonPlan.sections) => {
-    setLessonPlan(prev => ({
-      ...prev,
-      sections: newSections
-    }));
-  };
-
   return {
     currentStep,
     lessonPlan,
+    loading,
+    error,
+    saveInProgress,
     handleBasicInfoChange,
     addSection,
     setCurrentStep,

@@ -1,17 +1,26 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card.tsx";
-import "./index.css";
+import { Card, CardContent, CardHeader } from './components/ui/card.tsx';
+import './index.css';
 
-import BasicInfoForm from "./features/lesson-planner/components/BasicInfoForm.tsx";
-import LessonPhase from "./features/lesson-planner/components/LessonPhase.tsx";
-import LessonPlanPreview from "./features/lesson-planner/components/LessonPlanPreview.tsx";
-import NavigationControls from "./features/lesson-planner/components/NavigationControls.tsx";
-import useLessonPlanState from "./features/lesson-planner/hooks/useLessonPlanState.ts";
+import { AuthProvider } from './features/auth/AuthContext.tsx';
+import { useAuth } from './features/auth/AuthContext.tsx';
+import useLessonPlanState from './features/lesson-planner/hooks/useLessonPlanState.ts';
+import LoginForm from './features/auth/LoginForm.tsx';
+import { LoadingSpinner } from './components/ui/loading-spinner.tsx';
+import { ErrorAlert } from './features/common/components/ErrorAlert.tsx';
+import { SaveProgressAlert } from './features/common/components/SaveProgressAlert.tsx';
+import { LessonPlannerHeader } from './features/lesson-planner/components/LessonPlannerHeader.tsx';
+import { LessonContent } from './features/lesson-planner/components/LessonContent.tsx';
+import type { LessonSection } from './features/lesson-planner/types.ts';
 
-const App = () => {
+const MainAppContent = () => {
+  const { user } = useAuth();
   const {
     currentStep,
     lessonPlan,
+    loading,
+    error,
+    saveInProgress,
     handleBasicInfoChange,
     addSection,
     setCurrentStep,
@@ -20,73 +29,69 @@ const App = () => {
     updateSections
   } = useLessonPlanState();
 
-  const handleUpdateSection = (
+  if (!user) {
+    return <LoginForm />;
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  const handleSectionUpdate = (
     phase: 'opening' | 'main' | 'summary',
     index: number,
-    updates: any
+    updates: Partial<LessonSection>
   ) => {
-    const newSections = {...lessonPlan.sections};
-    newSections[phase][index] = { 
-      ...newSections[phase][index],
-      ...updates
+    if (!lessonPlan) return;
+
+    const updatedSections = {
+      ...lessonPlan.sections,
+      [phase]: lessonPlan.sections[phase].map((section, i) =>
+        i === index ? { ...section, ...updates } : section
+      )
     };
-    // Type assertion since we know the structure matches
-    updateSections(newSections);
+
+    updateSections(updatedSections);
   };
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-4 rtl">
+      {error && <ErrorAlert message={error} />}
+      {saveInProgress && <SaveProgressAlert />}
+
       <Card>
         <CardHeader>
-          <CardTitle>מתכנן שיעורים לחדר אימרסיבי</CardTitle>
+          <LessonPlannerHeader />
         </CardHeader>
         <CardContent>
-          {currentStep === 1 && (
-            <BasicInfoForm 
-              lessonPlan={lessonPlan} 
-              handleBasicInfoChange={handleBasicInfoChange} 
+          {lessonPlan && (
+            <LessonContent
+              currentStep={currentStep}
+              lessonPlan={lessonPlan}
+              handleBasicInfoChange={handleBasicInfoChange}
+              addSection={addSection}
+              handleSectionUpdate={handleSectionUpdate}
+              setCurrentStep={setCurrentStep}
+              handleExport={handleExport}
+              generateLessonPlanText={generateLessonPlanText}
             />
           )}
-          
-          {currentStep === 2 && (
-            <div>
-              <LessonPhase
-                phase="opening"
-                title="פתיחה"
-                sections={lessonPlan.sections.opening}
-                onAddSection={addSection}
-                onUpdateSection={handleUpdateSection}
-              />
-              <LessonPhase
-                phase="main"
-                title="גוף השיעור"
-                sections={lessonPlan.sections.main}
-                onAddSection={addSection}
-                onUpdateSection={handleUpdateSection}
-              />
-              <LessonPhase
-                phase="summary"
-                title="סיכום"
-                sections={lessonPlan.sections.summary}
-                onAddSection={addSection}
-                onUpdateSection={handleUpdateSection}
-              />
-            </div>
-          )}
-          
-          {currentStep === 3 && (
-            <LessonPlanPreview content={generateLessonPlanText()} />
-          )}
-          
-          <NavigationControls
-            currentStep={currentStep}
-            onPrevious={() => setCurrentStep(prev => prev - 1)}
-            onNext={() => setCurrentStep(prev => prev + 1)}
-            onExport={currentStep === 3 ? handleExport : undefined}
-          />
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+// Root component that provides authentication context
+const App = () => {
+  return (
+    <AuthProvider>
+      <MainAppContent />
+    </AuthProvider>
   );
 };
 

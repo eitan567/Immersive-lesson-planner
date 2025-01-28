@@ -1,0 +1,20 @@
+{
+  "name": "openai-mcp-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "chmod +x dist/openai-server.js",
+    "start": "node dist/openai-server.js"
+  },
+  "dependencies": {
+    "@types/node": "^20.0.0",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
