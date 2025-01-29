@@ -1,10 +1,10 @@
 import React from 'react';
-import BasicInfoForm from './BasicInfoForm';
-import { LessonBuilder } from './LessonBuilder';
-import LessonPlanPreview from './LessonPlanPreview';
-import NavigationControls from './NavigationControls';
-import { SaveStatus } from './SaveStatus';
-import type { LessonPlan, LessonSection } from '../types';
+import BasicInfoForm from './BasicInfoForm.tsx';
+import { LessonBuilder } from './LessonBuilder.tsx';
+import LessonPlanPreview from './LessonPlanPreview.tsx';
+import NavigationControls from './NavigationControls.tsx';
+import { SaveStatus } from './SaveStatus.tsx';
+import type { LessonPlan, LessonSection } from '../types.ts';
 
 interface LessonContentProps {
   currentStep: number;
