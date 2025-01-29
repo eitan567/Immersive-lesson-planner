@@ -28,7 +28,7 @@ export const AssistantChatBox = ({
     
     try {
       const result = await useMcpTool({
-        serverName: 'openai',
+        serverName: 'ai-server',
         toolName: 'generate_suggestion',
         arguments: {
           context,

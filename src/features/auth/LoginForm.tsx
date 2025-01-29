@@ -55,6 +55,7 @@ const LoginForm = () => {
               <Input
                 id="email"
                 type="email"
+                autoComplete='username'
                 value={email}
                 onChange={(e: any) => setEmail(e.target.value)}
                 required
@@ -66,6 +67,7 @@ const LoginForm = () => {
                 id="password"
                 type="password"
                 value={password}
+                autoComplete='current-password' 
                 onChange={(e: any) => setPassword(e.target.value)}
                 required
               />

@@ -21,12 +21,14 @@ const MainAppContent = () => {
     loading,
     error,
     saveInProgress,
+    lastSaved,
     handleBasicInfoChange,
     addSection,
     setCurrentStep,
     handleExport,
     generateLessonPlanText,
-    updateSections
+    updateSections,
+    saveCurrentPlan
   } = useLessonPlanState();
 
   if (!user) {
@@ -61,7 +63,6 @@ const MainAppContent = () => {
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-4 rtl">
       {error && <ErrorAlert message={error} />}
-      {saveInProgress && <SaveProgressAlert />}
 
       <Card>
         <CardHeader>
@@ -72,12 +73,15 @@ const MainAppContent = () => {
             <LessonContent
               currentStep={currentStep}
               lessonPlan={lessonPlan}
+              saveInProgress={saveInProgress}
+              lastSaved={lastSaved}
               handleBasicInfoChange={handleBasicInfoChange}
               addSection={addSection}
               handleSectionUpdate={handleSectionUpdate}
               setCurrentStep={setCurrentStep}
               handleExport={handleExport}
               generateLessonPlanText={generateLessonPlanText}
+              saveCurrentPlan={saveCurrentPlan}
             />
           )}
         </CardContent>

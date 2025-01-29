@@ -11,17 +11,43 @@ interface McpToolOptions {
   arguments: Record<string, unknown>;
 }
 
+// עדכון הפורט ל-8000
+const MCP_ENDPOINT = 'http://localhost:8000/mcp';
+
 export async function useMcpTool<T = McpToolResult>(
   options: McpToolOptions
 ): Promise<T | { error: string }> {
   try {
-    // @ts-ignore - ignore global tool use function
-    const result = await use_mcp_tool({
-      server_name: options.serverName,
-      tool_name: options.toolName,
-      arguments: options.arguments
+    const requestBody = {
+      jsonrpc: '2.0',
+      method: 'call_tool',
+      params: {
+        server_name: options.serverName,
+        name: options.toolName,
+        arguments: options.arguments
+      },
+      id: Date.now()
+    };
+
+    const response = await fetch(MCP_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
     });
-    return result as T;
+
+    if (!response.ok) {
+      throw new Error(`MCP request failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.error) {
+      throw new Error(result.error.message || 'Unknown MCP error');
+    }
+
+    return result.result as T;
   } catch (error) {
     console.error('MCP tool error:', error);
     return { error: error instanceof Error ? error.message : 'Unknown error' };

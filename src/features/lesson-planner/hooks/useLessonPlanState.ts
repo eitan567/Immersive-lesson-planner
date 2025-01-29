@@ -4,6 +4,9 @@ import { useAuth } from '../../auth/AuthContext.tsx';
 import type { LessonPlan, LessonPlanSections } from '../types.ts';
 import { lessonPlanService } from '../services/lessonPlanService.ts';
 
+const STORAGE_KEY = 'currentLessonPlanId';
+const STEP_STORAGE_KEY = 'currentLessonPlanStep';
+
 const createEmptyLessonPlan = (userId: string): Omit<LessonPlan, 'id' | 'created_at' | 'updated_at'> => ({
   userId,
   topic: '',
@@ -22,15 +25,25 @@ const createEmptyLessonPlan = (userId: string): Omit<LessonPlan, 'id' | 'created
 
 const useLessonPlanState = () => {
   const { user } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+    return savedStep ? parseInt(savedStep, 10) : 1;
+  });
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saveInProgress, setSaveInProgress] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
 
-  // Initialize or load existing lesson plan
+  // Save currentStep to localStorage whenever it changes
   useEffect(() => {
-    const initializeLessonPlan = async () => {
+    localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
+  }, [currentStep]);
+
+  // Load or initialize lesson plan
+  useEffect(() => {
+    const loadLessonPlan = async () => {
       if (!user) {
         setLoading(false);
         return;
@@ -38,9 +51,30 @@ const useLessonPlanState = () => {
 
       try {
         setLoading(true);
-        // In the future, we might want to load the last edited plan
+        
+        // Try to load existing plan ID from localStorage
+        const existingPlanId = localStorage.getItem(STORAGE_KEY);
+        
+        if (existingPlanId) {
+          try {
+            // Try to load the existing plan
+            const existingPlan = await lessonPlanService.getLessonPlan(existingPlanId);
+            if (existingPlan && existingPlan.userId === user.id) {
+              setLessonPlan(existingPlan);
+              setError(null);
+              return;
+            }
+          } catch (err) {
+            console.error('Failed to load existing plan:', err);
+          }
+        }
+        
+        // Create new plan if no existing plan found
         const emptyPlan = createEmptyLessonPlan(user.id);
         const created = await lessonPlanService.createLessonPlan(emptyPlan);
+        if (created.id) {
+          localStorage.setItem(STORAGE_KEY, created.id);
+        }
         setLessonPlan(created);
         setError(null);
       } catch (err) {
@@ -50,10 +84,62 @@ const useLessonPlanState = () => {
       }
     };
 
-    initializeLessonPlan();
+    loadLessonPlan();
   }, [user]);
 
-  const handleBasicInfoChange = async (field: keyof LessonPlan, value: string) => {
+  // Handle tab visibility change
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && user && lessonPlan?.id) {
+        try {
+          const refreshedPlan = await lessonPlanService.getLessonPlan(lessonPlan.id);
+          if (refreshedPlan) {
+            setLessonPlan(refreshedPlan);
+          }
+        } catch (err) {
+          console.error('Failed to refresh plan:', err);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user, lessonPlan?.id]);
+
+  // Handle beforeunload event
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (unsavedChanges) {
+        const message = 'יש שינויים שעדיין לא נשמרו. האם אתה בטוח שברצונך לעזוב?';
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [unsavedChanges]);
+
+  // Auto-save draft to localStorage
+  useEffect(() => {
+    if (!lessonPlan?.id) return;
+
+    const storageKey = `lessonPlan_${lessonPlan.id}_draft`;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(lessonPlan));
+    } catch (err) {
+      console.error('Failed to save draft:', err);
+    }
+  }, [lessonPlan]);
+
+  const handleStepChange = (updater: number | ((prev: number) => number)) => {
+    const newStep = typeof updater === 'function' ? updater(currentStep) : updater;
+    setCurrentStep(newStep);
+    localStorage.setItem(STEP_STORAGE_KEY, newStep.toString());
+  };
+
+  const handleBasicInfoChange = (field: keyof LessonPlan, value: string) => {
     if (!lessonPlan || !user) return;
 
     const updatedPlan = {
@@ -62,21 +148,28 @@ const useLessonPlanState = () => {
     };
 
     setLessonPlan(updatedPlan);
+    setUnsavedChanges(true);
+  };
 
-    if (lessonPlan.id && !saveInProgress) {
-      try {
-        setSaveInProgress(true);
-        await lessonPlanService.updateLessonPlan(lessonPlan.id, { [field]: value });
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save changes');
-      } finally {
-        setSaveInProgress(false);
-      }
+  const saveCurrentPlan = async () => {
+    if (!lessonPlan?.id || !user || saveInProgress) return;
+    
+    try {
+      setSaveInProgress(true);
+      const { id, userId, created_at, updated_at, ...updates } = lessonPlan;
+      await lessonPlanService.updateLessonPlan(lessonPlan.id, updates);
+      setError(null);
+      setLastSaved(new Date());
+      setUnsavedChanges(false);
+      localStorage.setItem(STORAGE_KEY, lessonPlan.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'שגיאה בשמירת התוכנית');
+    } finally {
+      setSaveInProgress(false);
     }
   };
 
-  const updateSections = async (newSections: LessonPlanSections) => {
+  const updateSections = (newSections: LessonPlanSections) => {
     if (!lessonPlan || !user) return;
 
     const updatedPlan = {
@@ -85,18 +178,7 @@ const useLessonPlanState = () => {
     };
 
     setLessonPlan(updatedPlan);
-
-    if (lessonPlan.id && !saveInProgress) {
-      try {
-        setSaveInProgress(true);
-        await lessonPlanService.updateLessonPlan(lessonPlan.id, { sections: newSections });
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save sections');
-      } finally {
-        setSaveInProgress(false);
-      }
-    }
+    setUnsavedChanges(true);
   };
 
   const addSection = async (phase: keyof LessonPlanSections) => {
@@ -186,12 +268,15 @@ const useLessonPlanState = () => {
     loading,
     error,
     saveInProgress,
+    lastSaved,
     handleBasicInfoChange,
     addSection,
-    setCurrentStep,
+    setCurrentStep: handleStepChange,
     handleExport,
     generateLessonPlanText,
-    updateSections
+    updateSections,
+    saveCurrentPlan,
+    unsavedChanges
   };
 };
 
