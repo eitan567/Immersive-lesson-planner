@@ -63,15 +63,8 @@ const LessonPhase = ({
         <h3 className="text-lg font-semibold mb-4 text-right text-gray-800">{title}</h3>
         <div className="space-y-4">
           {sections.map((section, index) => (
-            <Card key={index} className="p-4 border-gray-200 bg-white relative">
-              <Button
-                onClick={() => onRemoveSection(phase, index)}
-                variant="destructive"
-                size="icon"
-                className="absolute left-2 top-2 bg-red-500 hover:bg-red-600"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </Button>
+            <Card key={index} className="p-4 border-gray-200 bg-white relative">             
+              <TrashIcon className="h-4 w-4 absolute left-2 top-2 text-red-600 hover:text-red-400 hover:cursor-pointer" onClick={() => onRemoveSection(phase, index)}/>
               <div className="space-y-4 rtl">
                 <div className="text-right">
                   <Label className="text-right text-gray-700">תוכן/פעילות</Label>
