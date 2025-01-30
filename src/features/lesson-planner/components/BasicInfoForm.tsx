@@ -15,9 +15,10 @@ import { AssistantChatBox } from '../../ai-assistant/components/AssistantChatBox
 type BasicInfoFormProps = {
   lessonPlan: Pick<LessonPlan, 'topic' | 'duration' | 'gradeLevel' | 'priorKnowledge' | 'position' | 'contentGoals' | 'skillGoals'>;
   handleBasicInfoChange: (field: keyof LessonPlan, value: string) => void;
+  onSave?: () => Promise<void>;
 };
 
-const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps) => {
+const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoFormProps) => {
   const handleChange = (field: keyof LessonPlan) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -40,6 +41,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps
             context={lessonPlan.topic}
             onApplySuggestion={(suggestion) => handleBasicInfoChange('topic', suggestion)}
             placeholder="הצע נושא יחידה"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -58,6 +60,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps
             context={lessonPlan.duration}
             onApplySuggestion={(suggestion) => handleBasicInfoChange('duration', suggestion)}
             placeholder="הצע משך זמן מתאים"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -76,6 +79,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps
             context={lessonPlan.gradeLevel}
             onApplySuggestion={(suggestion) => handleBasicInfoChange('gradeLevel', suggestion)}
             placeholder="הצע שכבת גיל מתאימה"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -94,6 +98,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps
             context={lessonPlan.priorKnowledge}
             onApplySuggestion={(suggestion) => handleBasicInfoChange('priorKnowledge', suggestion)}
             placeholder="הצע ידע קודם נדרש"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -131,6 +136,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps
             context={lessonPlan.contentGoals}
             onApplySuggestion={(suggestion) => handleBasicInfoChange('contentGoals', suggestion)}
             placeholder="הצע מטרות תוכן"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -149,6 +155,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange }: BasicInfoFormProps
             context={lessonPlan.skillGoals}
             onApplySuggestion={(suggestion) => handleBasicInfoChange('skillGoals', suggestion)}
             placeholder="הצע מטרות מיומנות"
+            onSave={onSave}
           />
         </div>
       </div>

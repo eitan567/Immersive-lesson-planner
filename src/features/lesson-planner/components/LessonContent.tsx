@@ -51,9 +51,10 @@ export const LessonContent = ({
     <div className="space-y-4">
       {currentStep === 1 && (
         <>
-          <BasicInfoForm 
-            lessonPlan={lessonPlan} 
-            handleBasicInfoChange={handleBasicInfoChange} 
+          <BasicInfoForm
+            lessonPlan={lessonPlan}
+            handleBasicInfoChange={handleBasicInfoChange}
+            onSave={saveCurrentPlan}
           />
           <SaveStatus
             onSave={saveCurrentPlan}

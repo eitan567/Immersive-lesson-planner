@@ -9,13 +9,15 @@ interface AssistantChatBoxProps {
   context: string;
   placeholder?: string;
   fieldType?: 'topic' | 'content' | 'goals' | 'duration' | 'activity';
+  onSave?: () => Promise<void>;
 }
 
-export const AssistantChatBox = ({ 
-  onApplySuggestion, 
+export const AssistantChatBox = ({
+  onApplySuggestion,
   context,
-  placeholder = "צור תיאור חדש",
-  fieldType = 'content'
+  // placeholder = "צור תיאור חדש",
+  fieldType = 'content',
+  onSave
 }: AssistantChatBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -55,11 +57,19 @@ export const AssistantChatBox = ({
     }
   };
 
-  const handleApply = () => {
-    onApplySuggestion(suggestion);
-    setIsOpen(false);
-    setSuggestion('');
-    setError(null);
+  const handleApply = async () => {
+    try {
+      await onApplySuggestion(suggestion);
+      if (onSave) {
+        await onSave();
+      }
+      setIsOpen(false);
+      setSuggestion('');
+      setError(null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'שגיאה בשמירת השינויים');
+      console.error('Failed to apply suggestion:', error);
+    }
   };
 
   if (!isOpen) {
