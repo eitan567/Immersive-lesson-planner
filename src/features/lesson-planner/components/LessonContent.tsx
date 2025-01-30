@@ -18,6 +18,7 @@ interface LessonContentProps {
     index: number,
     updates: Partial<LessonSection>
   ) => void;
+  removeSection: (phase: 'opening' | 'main' | 'summary', index: number) => void;
   setCurrentStep: (updater: (prev: number) => number) => void;
   handleExport: () => void;
   generateLessonPlanText: () => string;
@@ -32,6 +33,7 @@ export const LessonContent = ({
   handleBasicInfoChange,
   addSection,
   handleSectionUpdate,
+  removeSection,
   setCurrentStep,
   handleExport,
   generateLessonPlanText,
@@ -71,6 +73,7 @@ export const LessonContent = ({
             sections={lessonPlan.sections}
             onAddSection={addSection}
             onUpdateSection={handleSectionUpdate}
+            onRemoveSection={removeSection}
           />
           <SaveStatus
             onSave={saveCurrentPlan}

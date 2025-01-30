@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../components/ui/select.tsx";
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import type { LessonSection } from '../types.ts';
 import { AssistantChatBox } from '../../ai-assistant/components/AssistantChatBox.tsx';
 
@@ -20,6 +20,7 @@ interface LessonPhaseProps {
   sections: LessonSection[];
   onAddSection: (phase: 'opening' | 'main' | 'summary') => void;
   onUpdateSection: (phase: 'opening' | 'main' | 'summary', index: number, updates: Partial<LessonSection>) => void;
+  onRemoveSection: (phase: 'opening' | 'main' | 'summary', index: number) => void;
 }
 
 const ScreenTypeSelect = ({ 
@@ -53,7 +54,8 @@ const LessonPhase = ({
   title, 
   sections, 
   onAddSection, 
-  onUpdateSection 
+  onUpdateSection,
+  onRemoveSection
 }: LessonPhaseProps) => {
   return (
     <Card className="mt-4 border-gray-200">
@@ -61,7 +63,15 @@ const LessonPhase = ({
         <h3 className="text-lg font-semibold mb-4 text-right text-gray-800">{title}</h3>
         <div className="space-y-4">
           {sections.map((section, index) => (
-            <Card key={index} className="p-4 border-gray-200 bg-white">
+            <Card key={index} className="p-4 border-gray-200 bg-white relative">
+              <Button
+                onClick={() => onRemoveSection(phase, index)}
+                variant="destructive"
+                size="icon"
+                className="absolute left-2 top-2 bg-red-500 hover:bg-red-600"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </Button>
               <div className="space-y-4 rtl">
                 <div className="text-right">
                   <Label className="text-right text-gray-700">תוכן/פעילות</Label>

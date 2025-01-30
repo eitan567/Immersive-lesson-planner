@@ -262,6 +262,17 @@ const useLessonPlanState = () => {
     return text;
   };
 
+  const removeSection = async (phase: keyof LessonPlanSections, index: number) => {
+    if (!lessonPlan || !user) return;
+
+    const updatedSections = {
+      ...lessonPlan.sections,
+      [phase]: lessonPlan.sections[phase].filter((_, i) => i !== index)
+    };
+
+    updateSections(updatedSections);
+  };
+
   return {
     currentStep,
     lessonPlan,
@@ -271,6 +282,7 @@ const useLessonPlanState = () => {
     lastSaved,
     handleBasicInfoChange,
     addSection,
+    removeSection,
     setCurrentStep: handleStepChange,
     handleExport,
     generateLessonPlanText,

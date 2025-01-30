@@ -10,12 +10,14 @@ interface LessonBuilderProps {
     index: number,
     updates: Partial<LessonSection>
   ) => void;
+  onRemoveSection: (phase: 'opening' | 'main' | 'summary', index: number) => void;
 }
 
 export const LessonBuilder = ({
   sections,
   onAddSection,
-  onUpdateSection
+  onUpdateSection,
+  onRemoveSection
 }: LessonBuilderProps) => {
   return (
     <div>
@@ -25,6 +27,7 @@ export const LessonBuilder = ({
         sections={sections.opening}
         onAddSection={onAddSection}
         onUpdateSection={onUpdateSection}
+        onRemoveSection={onRemoveSection}
       />
       <LessonPhase
         phase="main"
@@ -32,6 +35,7 @@ export const LessonBuilder = ({
         sections={sections.main}
         onAddSection={onAddSection}
         onUpdateSection={onUpdateSection}
+        onRemoveSection={onRemoveSection}
       />
       <LessonPhase
         phase="summary"
@@ -39,6 +43,7 @@ export const LessonBuilder = ({
         sections={sections.summary}
         onAddSection={onAddSection}
         onUpdateSection={onUpdateSection}
+        onRemoveSection={onRemoveSection}
       />
     </div>
   );

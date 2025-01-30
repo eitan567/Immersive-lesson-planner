@@ -28,7 +28,8 @@ const MainAppContent = () => {
     handleExport,
     generateLessonPlanText,
     updateSections,
-    saveCurrentPlan
+    saveCurrentPlan,
+    removeSection
   } = useLessonPlanState();
 
   if (!user) {
@@ -82,6 +83,7 @@ const MainAppContent = () => {
               handleExport={handleExport}
               generateLessonPlanText={generateLessonPlanText}
               saveCurrentPlan={saveCurrentPlan}
+              removeSection={removeSection}
             />
           )}
         </CardContent>
