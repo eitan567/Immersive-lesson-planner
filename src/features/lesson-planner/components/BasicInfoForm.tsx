@@ -55,13 +55,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
             placeholder="משך השיעור"
             className="text-right"
             dir="rtl"
-          />
-          <AssistantChatBox
-            context={lessonPlan.duration}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('duration', suggestion)}
-            placeholder="הצע משך זמן מתאים"
-            onSave={onSave}
-          />
+          />          
         </div>
       </div>
 
@@ -74,13 +68,7 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
             placeholder="הכנס שכבת גיל"
             className="text-right"
             dir="rtl"
-          />
-          <AssistantChatBox
-            context={lessonPlan.gradeLevel}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('gradeLevel', suggestion)}
-            placeholder="הצע שכבת גיל מתאימה"
-            onSave={onSave}
-          />
+          />          
         </div>
       </div>
 
@@ -106,7 +94,6 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">מיקום בתוכן</Label>
         <Select
-          dir="rtl"
           value={lessonPlan.position}
           onValueChange={(value) => handleBasicInfoChange('position', value)}
         >

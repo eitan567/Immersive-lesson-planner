@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../components/ui/select.tsx";
+import { PlusIcon } from '@heroicons/react/24/outline';
 import type { LessonSection } from '../types.ts';
 import { AssistantChatBox } from '../../ai-assistant/components/AssistantChatBox.tsx';
 
@@ -33,7 +34,7 @@ const ScreenTypeSelect = ({
   <div>
     <Label>מסך {screenNumber}</Label>
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger>
+      <SelectTrigger className="bg-white">
         <SelectValue placeholder="בחר תצוגה" />
       </SelectTrigger>
       <SelectContent>
@@ -55,21 +56,21 @@ const LessonPhase = ({
   onUpdateSection 
 }: LessonPhaseProps) => {
   return (
-    <Card className="mt-4">
+    <Card className="mt-4 border-gray-200">
       <CardContent>
-        <h3 className="text-lg font-semibold mb-4 text-right">{title}</h3>
+        <h3 className="text-lg font-semibold mb-4 text-right text-gray-800">{title}</h3>
         <div className="space-y-4">
           {sections.map((section, index) => (
-            <Card key={index} className="p-4">
+            <Card key={index} className="p-4 border-gray-200 bg-white">
               <div className="space-y-4 rtl">
                 <div className="text-right">
-                  <Label className="text-right">תוכן/פעילות</Label>
+                  <Label className="text-right text-gray-700">תוכן/פעילות</Label>
                   <div className="space-y-2">
                     <Textarea
                       value={section.content}
                       onChange={(e) => onUpdateSection(phase, index, { content: e.target.value })}
                       placeholder="תאר את הפעילות"
-                      className="text-right"
+                      className="text-right bg-white border-gray-200"
                       dir="rtl"
                     />
                     <AssistantChatBox
@@ -113,7 +114,7 @@ const LessonPhase = ({
                 </div>
 
                 <div>
-                  <Label>שימוש במרחב הפיזי</Label>
+                  <Label className="text-gray-700">שימוש במרחב הפיזי</Label>
                   <div className="space-y-2">
                     <Select
                       value={section.spaceUsage}
@@ -121,7 +122,7 @@ const LessonPhase = ({
                         onUpdateSection(phase, index, { spaceUsage: value })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white border-gray-200">
                         <SelectValue placeholder="בחר סוג עבודה" />
                       </SelectTrigger>
                       <SelectContent>
@@ -130,14 +131,7 @@ const LessonPhase = ({
                         <SelectItem value="individual">עבודה אישית</SelectItem>
                         <SelectItem value="mixed">משולב</SelectItem>
                       </SelectContent>
-                    </Select>
-                    <AssistantChatBox
-                      context={section.spaceUsage}
-                      onApplySuggestion={(suggestion) => 
-                        onUpdateSection(phase, index, { spaceUsage: suggestion })
-                      }
-                      placeholder="הצע שימוש במרחב"
-                    />
+                    </Select>                    
                   </div>
                 </div>
               </div>
@@ -145,8 +139,9 @@ const LessonPhase = ({
           ))}
           <Button 
             onClick={() => onAddSection(phase)}
-            className="w-full"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
           >
+            <PlusIcon className="h-5 w-5" />
             הוסף פעילות
           </Button>
         </div>

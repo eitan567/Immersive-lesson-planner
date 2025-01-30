@@ -1,5 +1,10 @@
 import React from 'react';
 import { Button } from "../../../components/ui/button.tsx";
+import { 
+  ArrowLeftIcon, 
+  ArrowRightIcon, 
+  ArrowDownTrayIcon 
+} from '@heroicons/react/24/outline';
 
 interface NavigationControlsProps {
   currentStep: number;
@@ -17,25 +22,33 @@ const NavigationControls = ({
   saving = false
 }: NavigationControlsProps) => {
   return (
-    <div className="flex justify-between mt-4">
+    <div className="flex justify-between mt-4 rtl">
       {currentStep > 1 && (
         <Button 
           onClick={onPrevious}
           disabled={saving}
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
         >
+          <ArrowRightIcon className="h-5 w-5" />
           {saving ? 'שומר...' : 'הקודם'}
         </Button>
       )}
-      {currentStep < 3 && (
+      <div className="flex-grow" />
+      {currentStep < 3 ? (
         <Button 
           onClick={onNext}
           disabled={saving}
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
         >
           {saving ? 'שומר...' : currentStep === 2 ? 'צפה בתוכנית' : 'הבא'}
+          <ArrowLeftIcon className="h-5 w-5" />
         </Button>
-      )}
-      {currentStep === 3 && onExport && (
-        <Button onClick={onExport}>
+      ) : onExport && (
+        <Button 
+          onClick={onExport}
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+        >
+          <ArrowDownTrayIcon className="h-5 w-5" />
           ייצא לקובץ טקסט
         </Button>
       )}
