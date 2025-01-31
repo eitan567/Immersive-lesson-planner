@@ -21,6 +21,9 @@ export interface LessonPlan {
   userId: string;
   topic: string;
   duration: string;
+  basicInfo: {
+    title: string;
+  };
   gradeLevel: string;
   priorKnowledge: string;
   position: string;

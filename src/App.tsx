@@ -62,32 +62,84 @@ const MainAppContent = () => {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-4 rtl">
-      {error && <ErrorAlert message={error} />}
+    <div className="h-screen flex flex-col">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center">
+            <img src="/logo.svg" alt="Logo" className="h-8 w-8 mr-3 rtl:mr-0 rtl:ml-3" />
+            <span className="text-xl font-semibold text-slate-800">Immersive Lesson Planner</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center space-x-3">
+            <div className="text-right hidden md:block">
+              <p className="text-sm font-medium text-slate-800">{user?.email}</p>
+              <p className="text-xs text-slate-500">מנהל מערכת</p>
+            </div>
+            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border-2 border-slate-200">
+              <span className="text-slate-600">מ</span>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-      <Card>
+      {/* Main Content Area */}
+      <div className="flex-1 flex bg-slate-50">
+        {/* Primary Content */}
+        <main className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-4xl mx-auto space-y-6 rtl">
+            {error && <ErrorAlert message={error} />}
+
+            <Card>
         <CardHeader>
           <LessonPlannerHeader />
         </CardHeader>
         <CardContent>
-          {lessonPlan && (
-            <LessonContent
-              currentStep={currentStep}
-              lessonPlan={lessonPlan}
-              saveInProgress={saveInProgress}
-              lastSaved={lastSaved}
-              handleBasicInfoChange={handleBasicInfoChange}
-              addSection={addSection}
-              handleSectionUpdate={handleSectionUpdate}
-              setCurrentStep={setCurrentStep}
-              handleExport={handleExport}
-              generateLessonPlanText={generateLessonPlanText}
-              saveCurrentPlan={saveCurrentPlan}
-              removeSection={removeSection}
-            />
-          )}
-        </CardContent>
-      </Card>
+                {lessonPlan && (
+                  <LessonContent
+                    currentStep={currentStep}
+                    lessonPlan={lessonPlan}
+                    saveInProgress={saveInProgress}
+                    lastSaved={lastSaved}
+                    handleBasicInfoChange={handleBasicInfoChange}
+                    addSection={addSection}
+                    handleSectionUpdate={handleSectionUpdate}
+                    setCurrentStep={setCurrentStep}
+                    handleExport={handleExport}
+                    generateLessonPlanText={generateLessonPlanText}
+                    saveCurrentPlan={saveCurrentPlan}
+                    removeSection={removeSection}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+
+        {/* Right Sidebar */}
+        <aside className="w-80 border-l border-slate-200 bg-white p-6 space-y-6">
+          <SaveProgressAlert
+            saveInProgress={saveInProgress}
+            lastSaved={lastSaved}
+          />
+          
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>
+              <div className="text-sm text-slate-600">
+                {lessonPlan?.basicInfo?.title || "ללא כותרת"}
+              </div>
+              <div className="text-sm text-slate-600">
+                {(lessonPlan?.sections?.opening?.length || 0) +
+                 (lessonPlan?.sections?.main?.length || 0) +
+                 (lessonPlan?.sections?.summary?.length || 0)} שלבים
+              </div>
+            </CardContent>
+          </Card>
+        </aside>
+      </div>
     </div>
   );
 };
