@@ -19,8 +19,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, sidebarProps }) 
       <Navbar user={user} />
       <div className="flex-1 flex flex-row-reverse mt-[72px]">
         <Sidebar {...sidebarProps} />
-        <main className="flex-1 overflow-y-auto bg-slate-50">
-          {children}
+        <main className="flex-1 bg-slate-50" dir='ltr'>
+            <div dir='rtl'>
+                {children}
+            </div>
         </main>
       </div>
     </div>
