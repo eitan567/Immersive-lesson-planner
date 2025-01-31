@@ -11,8 +11,11 @@ import { ErrorAlert } from './features/common/components/ErrorAlert.tsx';
 import { LessonContent } from './features/lesson-planner/components/LessonContent.tsx';
 import type { LessonSection } from './features/lesson-planner/types.ts';
 import { Layout } from './features/common/components/Layout.tsx';
+import { usePreventPageReset } from './hooks/usePreventPageReset.ts';
 
 const MainContent = () => {
+  usePreventPageReset();
+  
   const { user, loading: authLoading } = useAuth();
   const {
     currentStep,
@@ -112,6 +115,8 @@ const MainContent = () => {
 };
 
 const App = () => {
+  usePreventPageReset();
+
   return (
     <AuthProvider>
       <MainContent />
