@@ -35,7 +35,6 @@ export const LessonContent = ({
   handleSectionUpdate,
   removeSection,
   setCurrentStep,
-  handleExport,
   generateLessonPlanText,
   saveCurrentPlan
 }: LessonContentProps) => {

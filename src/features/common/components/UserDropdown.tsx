@@ -12,9 +12,9 @@ interface UserDropdownProps {
 
 export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
   // Debug logging
-  React.useEffect(() => {
-    console.log('Full user object:', user);
-  }, [user]);
+//   React.useEffect(() => {
+//     console.log('Full user object:', user);
+//   }, [user]);
 
   // Try multiple possible paths for avatar URL based on OAuth provider
   const getAvatarUrl = () => {
@@ -127,4 +127,4 @@ export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
-};
+}
