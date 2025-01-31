@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
           <span className="text-xl font-semibold text-slate-800">מתכנן שיעורים לחדר אימרסיבי</span>
-          <img src="/logo.svg" alt="Logo" className="h-8 w-8 mr-3" />
+          <img src="/logo.svg" alt="Logo" className="h-8 w-8 ml-3" />
         </div>
       </div>      
     </nav>

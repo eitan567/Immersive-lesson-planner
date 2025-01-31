@@ -13,6 +13,7 @@ interface AuthContextType {
   signIn: {
     withGoogle: () => Promise<{ error: AuthError | null }>;
     withFacebook: () => Promise<{ error: AuthError | null }>;
+    withMicrosoft: () => Promise<{ error: AuthError | null }>;
     withEmail: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   };
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
@@ -62,6 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       withFacebook: async () => {
         return supabase.auth.signInWithOAuth({
           provider: 'facebook',
+          options: {
+            redirectTo: window.location.origin
+          }
+        });
+      },
+      withMicrosoft: async () => {
+        return supabase.auth.signInWithOAuth({
+          provider: 'azure',
           options: {
             redirectTo: window.location.origin
           }

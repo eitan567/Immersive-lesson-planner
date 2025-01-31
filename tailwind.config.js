@@ -5,9 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class"],
-  plugins: [require('tailwindcss-flip')],
+  plugins: [
+    require('tailwindcss-flip'),
+    require('tailwind-scrollbar'),
+  ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  variants: {
+    scrollbar: ['rounded']
+  }
 }
