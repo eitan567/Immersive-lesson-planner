@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from './components/ui/card.tsx';
 import './index.css';
 
 import { AuthProvider } from './features/auth/AuthContext.tsx';
+import { Navbar } from './features/common/components/Navbar.tsx';
 import { useAuth } from './features/auth/AuthContext.tsx';
 import useLessonPlanState from './features/lesson-planner/hooks/useLessonPlanState.ts';
 import LoginForm from './features/auth/LoginForm.tsx';
@@ -63,27 +64,7 @@ const MainAppContent = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top Navigation Bar */}
-      <nav className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4 rtl:space-x-reverse">
-          <div className="flex items-center">
-            <img src="/logo.svg" alt="Logo" className="h-8 w-8 mr-3 rtl:mr-0 rtl:ml-3" />
-            <span className="text-xl font-semibold text-slate-800">Immersive Lesson Planner</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4 rtl:space-x-reverse">
-          <div className="flex items-center space-x-3">
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-medium text-slate-800">{user?.email}</p>
-              <p className="text-xs text-slate-500">מנהל מערכת</p>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border-2 border-slate-200">
-              <span className="text-slate-600">מ</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar user={user} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex bg-slate-50">
@@ -92,10 +73,10 @@ const MainAppContent = () => {
           <div className="max-w-4xl mx-auto space-y-6 rtl">
             {error && <ErrorAlert message={error} />}
 
-            <Card>
-        <CardHeader>
+      <Card>
+        {/* <CardHeader>
           <LessonPlannerHeader />
-        </CardHeader>
+        </CardHeader> */}
         <CardContent>
                 {lessonPlan && (
                   <LessonContent

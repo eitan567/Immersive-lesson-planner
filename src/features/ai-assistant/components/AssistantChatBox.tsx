@@ -74,7 +74,7 @@ export const AssistantChatBox = ({
   };
 
   return (
-    <div className="absolute left-6 w-[32rem] z-100">
+    <div className="absolute left-6 w-[32rem] z-100" style={{ zIndex: "100 !important" }}>
       <button
         onClick={generateSuggestion}
         className="absolute left-1 top-[-42px] p-1.5 text-gray-600 hover:text-blue-800 transition-colors"
@@ -84,7 +84,7 @@ export const AssistantChatBox = ({
       </button>
 
       {isOpen && (
-        <div className="relative mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[20px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
+        <div className="relative  z-100 mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[20px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-medium text-gray-700">הצעה לשיפור</h3>
             <button
