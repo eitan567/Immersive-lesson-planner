@@ -1,22 +1,19 @@
 import React from 'react';
-import { Card, CardContent, CardHeader } from './components/ui/card.tsx';
+import { Card, CardContent } from './components/ui/card.tsx';
 import './index.css';
 
 import { AuthProvider } from './features/auth/AuthContext.tsx';
-import { Navbar } from './features/common/components/Navbar.tsx';
 import { useAuth } from './features/auth/AuthContext.tsx';
 import useLessonPlanState from './features/lesson-planner/hooks/useLessonPlanState.ts';
 import LoginForm from './features/auth/LoginForm.tsx';
 import { LoadingSpinner } from './components/ui/loading-spinner.tsx';
 import { ErrorAlert } from './features/common/components/ErrorAlert.tsx';
-import { SaveProgressAlert } from './features/common/components/SaveProgressAlert.tsx';
-import { LessonPlannerHeader } from './features/lesson-planner/components/LessonPlannerHeader.tsx';
 import { LessonContent } from './features/lesson-planner/components/LessonContent.tsx';
 import type { LessonSection } from './features/lesson-planner/types.ts';
 import { Layout } from './features/common/components/Layout.tsx';
 
-const MainAppContent = () => {
-  const { user } = useAuth();
+const MainContent = () => {
+  const { user, loading: authLoading } = useAuth();
   const {
     currentStep,
     lessonPlan,
@@ -34,10 +31,21 @@ const MainAppContent = () => {
     removeSection
   } = useLessonPlanState();
 
+  // Show loading spinner while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
   if (!user) {
     return <LoginForm />;
   }
 
+  // Show loading spinner while lesson plan data is loading
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -103,11 +111,10 @@ const MainAppContent = () => {
   );
 };
 
-// Root component that provides authentication context
 const App = () => {
   return (
     <AuthProvider>
-      <MainAppContent />
+      <MainContent />
     </AuthProvider>
   );
 };

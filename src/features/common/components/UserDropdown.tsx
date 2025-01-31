@@ -6,24 +6,57 @@ interface UserDropdownProps {
     user: {
         user_metadata: any;
         email?: string | null;
-        photoURL?: string | null;
     } | null;
-  onSignOut: () => void;
+    onSignOut: () => void;
 }
 
 export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
-    console.log(user);
-    if (user) {
-        user.photoURL = user?.user_metadata?.avatar_url;
-        console.log(user);
-    }
+  // Debug logging
+  React.useEffect(() => {
+    console.log('Full user object:', user);
+  }, [user]);
+
+  // Try multiple possible paths for avatar URL based on OAuth provider
+  const getAvatarUrl = () => {
+    if (!user?.user_metadata) return null;
+    
+    // Google specific paths
+    if (user.user_metadata.picture) return user.user_metadata.picture;
+    if (user.user_metadata.avatar_url) return user.user_metadata.avatar_url;
+    
+    // Facebook specific path
+    if (user.user_metadata.picture?.data?.url) return user.user_metadata.picture.data.url;
+    
+    // Microsoft specific paths
+    if (user.user_metadata.photo) return user.user_metadata.photo;
+    
+    // Generic OAuth paths
+    if (user.user_metadata.profile?.picture) return user.user_metadata.profile.picture;
+    if (user.user_metadata.profile?.avatar_url) return user.user_metadata.profile.avatar_url;
+    
+    return null;
+  };
+
+  const avatarUrl = getAvatarUrl();
+  console.log('Resolved avatar URL:', avatarUrl);
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <div className="flex items-center space-x-3 cursor-pointer select-none">
           <div className="h-10 w-10 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 overflow-hidden mr-2">
-            {user?.photoURL ? (
-              <img src={user.photoURL} alt="User avatar" className="h-full w-full object-cover" />
+            {avatarUrl ? (
+              <img 
+                src={avatarUrl} 
+                alt="User avatar" 
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  console.error('Avatar image failed to load:', avatarUrl);
+                  const target = e.target as HTMLImageElement;
+                  target.src = ''; // Clear broken image
+                  target.onerror = null; // Prevent infinite loop
+                }}
+              />
             ) : (
               <span className="text-slate-600">מ</span>
             )}

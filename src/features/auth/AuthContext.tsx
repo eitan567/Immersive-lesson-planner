@@ -56,7 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin
+            redirectTo: window.location.origin,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+              scope: 'profile email https://www.googleapis.com/auth/userinfo.profile'
+            }
           }
         });
       },
@@ -64,7 +69,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return supabase.auth.signInWithOAuth({
           provider: 'facebook',
           options: {
-            redirectTo: window.location.origin
+            redirectTo: window.location.origin,
+            scopes: 'email,public_profile'
           }
         });
       },
@@ -72,7 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return supabase.auth.signInWithOAuth({
           provider: 'azure',
           options: {
-            redirectTo: window.location.origin
+            redirectTo: window.location.origin,
+            scopes: 'openid profile email User.Read'
           }
         });
       },
