@@ -1,72 +1,59 @@
 import { AIProvider, ProviderConfig } from './types.ts';
-import { makeRequest } from '../utils/http.ts';
 import { logDebug, logError, logRequest, logResponse } from '../utils/logging.ts';
+import OpenAI from 'openai';
 
 export class DeepSeekProvider implements AIProvider {
-  private readonly baseUrl: string;
-  private readonly apiKey: string;
+  private readonly client: OpenAI;
   private readonly model: string;
-  private readonly timeout: number;
 
   constructor(config: ProviderConfig) {
-    const { baseUrl, apiKey, model = 'deepseek-ai/DeepSeek-R1', timeout = 180000 } = config;
+    const { baseUrl, apiKey, model = 'klusterai/Meta-Llama-3.1-8B-Instruct-Turbo' } = config;
     
     if (!baseUrl) throw new Error('DeepSeek base URL is required');
     if (!apiKey) throw new Error('DeepSeek API key is required');
     
-    this.baseUrl = baseUrl;
-    this.apiKey = apiKey;
+    this.client = new OpenAI({ 
+      apiKey,
+      baseURL: baseUrl
+    });
     this.model = model;
-    this.timeout = timeout;
 
-    logDebug('DeepSeek', 'Initialized with config:', { baseUrl, model, timeout });
+    logDebug('DeepSeek', 'Initialized with config:', { baseUrl, model });
   }
 
   async generateCompletion(prompt: string): Promise<string> {
     logDebug('DeepSeek', 'Generating completion for prompt:', prompt);
 
-    const requestBody = {
-      model: this.model,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a helpful assistant with expertise in education and lesson planning. Respond in Hebrew.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 800
-    };
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: 'system' as const,
+        content: 'You are a helpful assistant with expertise in education and lesson planning. Respond in Hebrew.'
+      },
+      {
+        role: 'user' as const,
+        content: prompt
+      }
+    ];
 
     try {
-      logRequest('DeepSeek', requestBody);
+      logRequest('DeepSeek', { model: this.model, messages });
 
-      const response = await makeRequest(`${this.baseUrl}/chat/completions`, {
-        body: requestBody,
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`
-        },
-        timeout: this.timeout
+      const completion = await this.client.chat.completions.create({
+        model: this.model,
+        messages,
+        temperature: 0.7,
+        max_tokens: 800,
+        stream: false
       });
+      
+      logResponse('DeepSeek', completion);
 
-      if (!response.ok) {
-        const error = await response.json();
-        logError('DeepSeek API error:', error);
-        throw new Error(`DeepSeek API error: ${error.error?.message || JSON.stringify(error)}`);
-      }
-
-      const data = await response.json();
-      logResponse('DeepSeek', data);
-
-      if (!data.choices?.[0]?.message?.content) {
-        logError('DeepSeek invalid response format:', data);
+      if (!completion.choices?.[0]?.message?.content) {
+        logError('DeepSeek invalid response format:', completion);
         throw new Error('Invalid response format from DeepSeek API');
       }
 
-      return data.choices[0].message.content;
+      return completion.choices[0].message.content;
     } catch (error) {
       logError('DeepSeek completion error:', error);
       throw error;

@@ -21,6 +21,7 @@
       "dependencies": [
         "npm:@types/node@20",
         "npm:dotenv@^16.4.7",
+        "npm:openai@^4.81.0",
         "npm:typescript@5",
         "npm:zod@^3.24.1"
       ]
