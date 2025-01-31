@@ -63,8 +63,7 @@ const LessonPhase = ({
         <h3 className="text-lg font-semibold mb-4 text-right text-gray-800">{title}</h3>
         <div className="space-y-4">
           {sections.map((section, index) => (
-            <Card key={index} className="p-4 border-gray-200 bg-white relative">             
-              <TrashIcon className="h-4 w-4 absolute left-2 top-2 text-red-600 hover:text-red-400 hover:cursor-pointer" onClick={() => onRemoveSection(phase, index)}/>
+            <Card key={index} className="p-4 border-gray-200 bg-white relative">                           
               <div className="space-y-4 rtl">
                 <div className="text-right">
                   <Label className="text-right text-gray-700">תוכן/פעילות</Label>
@@ -136,7 +135,15 @@ const LessonPhase = ({
                       </SelectContent>
                     </Select>                    
                   </div>
+                    {/* <TrashIcon className="h-4 w-4 absolute left-2 top-2 text-red-600 hover:text-red-400 hover:cursor-pointer" onClick={() => onRemoveSection(phase, index)}/> */}                  
                 </div>
+                  <Button 
+                    onClick={() => onRemoveSection(phase, index)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                    מחק פעילות
+                  </Button>
               </div>
             </Card>
           ))}

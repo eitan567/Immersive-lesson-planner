@@ -3,14 +3,20 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Button } from "../../../components/ui/button.tsx";
 
 interface UserDropdownProps {
-  user: {
-    email?: string | null;
-    photoURL?: string | null;
-  } | null;
+    user: {
+        user_metadata: any;
+        email?: string | null;
+        photoURL?: string | null;
+    } | null;
   onSignOut: () => void;
 }
 
 export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
+    console.log(user);
+    if (user) {
+        user.photoURL = user?.user_metadata?.avatar_url;
+        console.log(user);
+    }
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>

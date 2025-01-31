@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,5 +67,16 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer components {
+  .preview-content {
+    font-family: 'Varela Round', 'Assistant', sans-serif;
+    font-feature-settings: 'kern';
+    -webkit-font-smoothing: antialiased;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #334155;
   }
 }

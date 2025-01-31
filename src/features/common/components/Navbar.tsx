@@ -6,16 +6,12 @@ interface NavbarProps {
   user: {
     user_metadata: any;
     email?: string | null;
-    photoURL?: string | null;
   } | null;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ user }) => {
   const { signOut } = useAuth();
-  if (user) {
-    user.photoURL = user?.user_metadata?.avatar_url;
-  }
-  
+    
   const handleSignOut = async () => {
     try {
       await signOut();

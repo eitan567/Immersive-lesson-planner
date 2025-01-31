@@ -24,7 +24,12 @@ export default {
       animation: {
         "fade-in": "fade-in 0.2s ease-out",
         "zoom-in": "zoom-in 0.2s ease-out"
-      }
+      },
+      fontFamily: {
+        'assistant': ['Assistant', 'sans-serif'],
+        'heebo': ['Heebo', 'sans-serif'],
+        'content': ['Varela Round', 'Assistant', 'sans-serif'],
+      },
     }
   },
   variants: {
