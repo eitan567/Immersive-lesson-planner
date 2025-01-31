@@ -17,12 +17,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, sidebarProps }) 
   return (
     <div className="h-screen flex flex-col">
       <Navbar user={user} />
-      <div className="flex-1 flex flex-row-reverse mt-[72px]">
+      <div className="flex-1 flex flex-row-reverse mt-[72px] overflow-hidden">
         <Sidebar {...sidebarProps} />
-        <main className="flex-1 bg-slate-50" dir='ltr'>
-            <div dir='rtl'>
-                {children}
-            </div>
+        <main className="flex-1 relative">
+          <div className="absolute inset-0 overflow-auto" dir='ltr'>
+            {children}
+          </div>
         </main>
       </div>
     </div>

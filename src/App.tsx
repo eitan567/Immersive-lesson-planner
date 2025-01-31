@@ -74,8 +74,8 @@ const MainAppContent = () => {
 
   return (
     <Layout user={user} sidebarProps={sidebarProps}>
-      <div className="p-6">
-        <div dir="rtl" className="max-full-width mx-auto space-y-6">
+      <div className="p-6 min-h-full">
+        <div dir="rtl" className="mx-auto space-y-6">
           {error && <ErrorAlert message={error} />}
           <Card>
             <CardContent>
