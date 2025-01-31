@@ -24,22 +24,26 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-[72px] z-50 
-      bg-white/20 
+    <nav className="fixed top-0 left-0 right-0 h-[72px] z-50
+      bg-white/10 
       backdrop-filter 
-      backdrop-blur-lg 
+      backdrop-blur-lg       
+      backdrop-opacity-80
+      firefox:bg-opacity-90
       border-b 
-      border-slate-200/20 
-      px-6 
-      flex 
-      items-center 
-      justify-between 
-      shadow-sm
-      supports-[backdrop-filter]:bg-white/5">
+      border-white/20
+      px-6
+      flex
+      items-center
+      justify-between
+      shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]
+      transition-all 
+      duration-300 
+      ease-in-out">
       {/* Right side - User Profile and Logout */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border-2 border-slate-200 overflow-hidden ml-2">
+          <div className="h-10 w-10 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 overflow-hidden ml-2">
             {user?.photoURL ? (
               <img src={user.photoURL} alt="User avatar" className="h-full w-full object-cover" />
             ) : (
@@ -47,13 +51,13 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
             )}
           </div>
           <div className="text-right hidden md:block">
-            <p className="text-sm font-medium text-slate-800">{user?.email}</p>
-            <p className="text-xs text-slate-500">מנהל מערכת</p>
+            <p className="text-slate-800 font-medium text-sm">{user?.email}</p>
+            <p className="text-slate-600 text-xs">מנהל מערכת</p>
           </div>
           <Button 
             variant="ghost" 
             onClick={handleSignOut}
-            className="mr-2 hover:bg-slate-100"
+            className="mr-2 hover:bg-white/20 transition-colors duration-200"
           >
             התנתק
           </Button>
