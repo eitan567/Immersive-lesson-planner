@@ -13,7 +13,7 @@ interface LayoutProps {
   };
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, user, sidebarProps }) => {
+export const Layout = React.memo(({ children, user, sidebarProps }: LayoutProps) => {
   return (
     <div className="h-screen flex flex-col">
       <Navbar user={user} />
@@ -27,4 +27,4 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, sidebarProps }) 
       </div>
     </div>
   );
-};
+});

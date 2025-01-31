@@ -10,14 +10,9 @@ interface UserDropdownProps {
     onSignOut: () => void;
 }
 
-export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
-  // Debug logging
-//   React.useEffect(() => {
-//     console.log('Full user object:', user);
-//   }, [user]);
-
-  // Try multiple possible paths for avatar URL based on OAuth provider
-  const getAvatarUrl = () => {
+export const UserDropdown = React.memo(({ user, onSignOut }: UserDropdownProps) => {
+  // Keep all hooks at the top level of the component
+  const avatarUrl = React.useMemo(() => {
     if (!user?.user_metadata) return null;
     
     // Google specific paths
@@ -35,10 +30,17 @@ export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
     if (user.user_metadata.profile?.avatar_url) return user.user_metadata.profile.avatar_url;
     
     return null;
-  };
+  }, [user?.user_metadata]);
 
-  const avatarUrl = getAvatarUrl();
-  console.log('Resolved avatar URL:', avatarUrl);
+  // Memoize the error handler to prevent recreating it on every render
+  const handleImageError = React.useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error('Avatar image failed to load:', avatarUrl);
+    const target = e.target as HTMLImageElement;
+    target.src = ''; // Clear broken image
+    target.onerror = null; // Prevent infinite loop
+  }, [avatarUrl]);
+
+  console.log('Rendering UserDropdown');
 
   return (
     <DropdownMenu.Root>
@@ -50,12 +52,7 @@ export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
                 src={avatarUrl} 
                 alt="User avatar" 
                 className="h-full w-full object-cover"
-                onError={(e) => {
-                  console.error('Avatar image failed to load:', avatarUrl);
-                  const target = e.target as HTMLImageElement;
-                  target.src = ''; // Clear broken image
-                  target.onerror = null; // Prevent infinite loop
-                }}
+                onError={handleImageError}
               />
             ) : (
               <span className="text-slate-600">מ</span>
@@ -127,4 +124,4 @@ export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
-}
+});

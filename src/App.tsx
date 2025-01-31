@@ -13,7 +13,7 @@ import type { LessonSection } from './features/lesson-planner/types.ts';
 import { Layout } from './features/common/components/Layout.tsx';
 import { usePreventPageReset } from './hooks/usePreventPageReset.ts';
 
-const MainContent = () => {
+const MainContent = React.memo(() => {
   usePreventPageReset();
   
   const { user, loading: authLoading } = useAuth();
@@ -33,6 +33,32 @@ const MainContent = () => {
     saveCurrentPlan,
     removeSection
   } = useLessonPlanState();
+
+  const handleSectionUpdate = React.useCallback((
+    phase: 'opening' | 'main' | 'summary',
+    index: number,
+    updates: Partial<LessonSection>
+  ) => {
+    if (!lessonPlan) return;
+
+    const updatedSections = {
+      ...lessonPlan.sections,
+      [phase]: lessonPlan.sections[phase].map((section, i) =>
+        i === index ? { ...section, ...updates } : section
+      )
+    };
+
+    updateSections(updatedSections);
+  }, [lessonPlan, updateSections]);
+
+  const sidebarProps = React.useMemo(() => ({
+    saveInProgress,
+    lastSaved,
+    lessonTitle: lessonPlan?.basicInfo?.title,
+    totalSteps: (lessonPlan?.sections?.opening?.length || 0) +
+                (lessonPlan?.sections?.main?.length || 0) +
+                (lessonPlan?.sections?.summary?.length || 0)
+  }), [saveInProgress, lastSaved, lessonPlan?.basicInfo?.title, lessonPlan?.sections]);
 
   // Show loading spinner while auth is initializing
   if (authLoading) {
@@ -56,32 +82,6 @@ const MainContent = () => {
       </div>
     );
   }
-
-  const handleSectionUpdate = (
-    phase: 'opening' | 'main' | 'summary',
-    index: number,
-    updates: Partial<LessonSection>
-  ) => {
-    if (!lessonPlan) return;
-
-    const updatedSections = {
-      ...lessonPlan.sections,
-      [phase]: lessonPlan.sections[phase].map((section, i) =>
-        i === index ? { ...section, ...updates } : section
-      )
-    };
-
-    updateSections(updatedSections);
-  };
-
-  const sidebarProps = {
-    saveInProgress,
-    lastSaved,
-    lessonTitle: lessonPlan?.basicInfo?.title,
-    totalSteps: (lessonPlan?.sections?.opening?.length || 0) +
-                (lessonPlan?.sections?.main?.length || 0) +
-                (lessonPlan?.sections?.summary?.length || 0)
-  };
 
   return (
     <Layout user={user} sidebarProps={sidebarProps}>
@@ -112,7 +112,7 @@ const MainContent = () => {
       </div>
     </Layout>
   );
-};
+});
 
 const App = () => {
   usePreventPageReset();

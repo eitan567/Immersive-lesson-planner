@@ -9,16 +9,16 @@ interface NavbarProps {
   } | null;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ user }) => {
+export const Navbar = React.memo(({ user }: NavbarProps) => {
   const { signOut } = useAuth();
     
-  const handleSignOut = async () => {
+  const handleSignOut = React.useCallback(async () => {
     try {
       await signOut();
     } catch (error) {
       console.error('Error signing out:', error);
     }
-  };
+  }, [signOut]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-[72px] z-50
@@ -51,4 +51,4 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
       </div>      
     </nav>
   );
-};
+});
