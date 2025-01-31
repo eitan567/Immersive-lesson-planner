@@ -84,7 +84,7 @@ export const AssistantChatBox = ({
       </button>
 
       {isOpen && (
-        <div className="w-[97%] absolute top-0 left-0 z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[20px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
+        <div className="w-[97%] absolute top-0 left-0 z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[13px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-medium text-gray-700">הצעה לשיפור</h3>
             <button

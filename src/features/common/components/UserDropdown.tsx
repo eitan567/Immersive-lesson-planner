@@ -15,7 +15,7 @@ export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <div className="flex items-center space-x-3 cursor-pointer select-none">
-          <div className="h-10 w-10 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 overflow-hidden mR-2">
+          <div className="h-10 w-10 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 overflow-hidden mr-2">
             {user?.photoURL ? (
               <img src={user.photoURL} alt="User avatar" className="h-full w-full object-cover" />
             ) : (
@@ -31,39 +31,59 @@ export const UserDropdown = ({ user, onSignOut }: UserDropdownProps) => {
 
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className="min-w-[220px] bg-white rounded-md p-2 shadow-lg border border-slate-200/60 backdrop-blur-sm backdrop-filter"
+          className="relative min-w-[220px] bg-gradient-to-b from-white/95 to-white/90 rounded-xl p-3 
+            shadow-[0_4px_20px_-1px_rgba(0,0,0,0.1)] 
+            border border-slate-200
+            backdrop-blur-lg backdrop-saturate-150
+            animate-in fade-in-0 zoom-in-95
+            data-[side=bottom]:slide-in-from-top-2
+            data-[side=top]:slide-in-from-bottom-2
+            z-[60]"
           sideOffset={5}
           align="end"
         >
-          <div className="px-2 py-2 text-sm text-slate-500 border-b border-slate-200/60 mb-2">
-          {user?.email} -מחובר כ
-          </div>
+          {/* Bubble Arrow - with matching border color */}
+          <div className="absolute -top-[9px] right-[10px] w-[18px] h-[18px] rotate-45 
+            bg-gradient-to-b from-white/95 to-white/90
+            border-t border-l border-slate-200
+            backdrop-blur-lg" 
+          />
 
-          <DropdownMenu.Item className="outline-none">
-            <Button
-              variant="ghost"
-              className="w-full justify-end text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={onSignOut}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="ml-2 mt-[4px]"
+          {/* Content with increased relative z-index */}
+          <div className="relative z-10">
+            <div className="px-2 py-2 text-sm text-slate-600 border-b border-slate-200/60 mb-2">
+              {user?.email} -מחובר כ
+            </div>
+
+            <DropdownMenu.Item className="outline-none">
+              <Button
+                variant="ghost"
+                className="w-full justify-end text-red-600 hover:text-red-700 
+                  hover:bg-red-50/80 active:bg-red-100/80
+                  rounded-md px-4 py-2
+                  transition-all duration-150"
+                onClick={onSignOut}
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-              התנתק
-            </Button>
-          </DropdownMenu.Item>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-2 mt-[2px]"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                התנתק
+              </Button>
+            </DropdownMenu.Item>
+          </div>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
