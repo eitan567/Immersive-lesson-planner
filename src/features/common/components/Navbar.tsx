@@ -37,18 +37,19 @@ export const Navbar = React.memo(({ user }: NavbarProps) => {
       transition-all 
       duration-300 
       ease-in-out">
-      {/* Right side - User Profile and Logout */}
-      <div className="flex items-center space-x-4">
-        <UserDropdown user={user} onSignOut={handleSignOut} />
-      </div>
       
       {/* Left side - Logo and Title */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
+          <img src="/logo.svg" alt="Logo" className="h-8 w-8 mr-3" />
           <span className="text-xl font-semibold text-slate-800">מתכנן שיעורים לחדר אימרסיבי</span>
-          <img src="/logo.svg" alt="Logo" className="h-8 w-8 ml-3" />
         </div>
       </div>      
+
+      {/* Right side - User Profile and Logout */}
+      <div className="flex items-center space-x-4">
+        <UserDropdown user={user} onSignOut={handleSignOut} />
+      </div>
     </nav>
   );
 });
