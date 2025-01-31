@@ -11,16 +11,19 @@ interface LessonBuilderProps {
     updates: Partial<LessonSection>
   ) => void;
   onRemoveSection: (phase: 'opening' | 'main' | 'summary', index: number) => void;
+  onSave?: () => Promise<void>;
 }
 
 export const LessonBuilder = ({
   sections,
   onAddSection,
   onUpdateSection,
-  onRemoveSection
+  onRemoveSection,
+  onSave
 }: LessonBuilderProps) => {
   return (
     <div>
+      <h1 className="text-2xl font-semibold text-slate-800">בניית השיעור</h1>
       <LessonPhase
         phase="opening"
         title="פתיחה"

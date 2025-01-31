@@ -21,6 +21,7 @@ interface LessonPhaseProps {
   onAddSection: (phase: 'opening' | 'main' | 'summary') => void;
   onUpdateSection: (phase: 'opening' | 'main' | 'summary', index: number, updates: Partial<LessonSection>) => void;
   onRemoveSection: (phase: 'opening' | 'main' | 'summary', index: number) => void;
+  onSave?: () => Promise<void>;
 }
 
 const ScreenTypeSelect = ({ 
@@ -49,13 +50,14 @@ const ScreenTypeSelect = ({
   </div>
 );
 
-const LessonPhase = ({ 
-  phase, 
-  title, 
-  sections, 
-  onAddSection, 
+const LessonPhase = ({
+  phase,
+  title,
+  sections,
+  onAddSection,
   onUpdateSection,
-  onRemoveSection
+  onRemoveSection,
+  onSave
 }: LessonPhaseProps) => {
   return (
     <Card className="mt-4 border-gray-200">
@@ -77,10 +79,11 @@ const LessonPhase = ({
                     />
                     <AssistantChatBox
                       context={section.content}
-                      onApplySuggestion={(suggestion) => 
+                      onApplySuggestion={(suggestion) =>
                         onUpdateSection(phase, index, { content: suggestion })
                       }
                       placeholder="צור תיאור פעילות חדש"
+                      onSave={onSave}
                     />
                   </div>
                 </div>
