@@ -70,13 +70,6 @@ const LessonPhase = ({
                 <div className="text-right">
                   <Label className="text-right text-gray-700">תוכן/פעילות</Label>
                   <div className="space-y-2">
-                    <Textarea
-                      value={section.content}
-                      onChange={(e) => onUpdateSection(phase, index, { content: e.target.value })}
-                      placeholder="תאר את הפעילות"
-                      className="text-right bg-white border-gray-200"
-                      dir="rtl"
-                    />
                     <AssistantChatBox
                       context={section.content}
                       onApplySuggestion={(suggestion) =>
@@ -84,6 +77,13 @@ const LessonPhase = ({
                       }
                       placeholder="צור תיאור פעילות חדש"
                       onSave={onSave}
+                    />
+                    <Textarea
+                      value={section.content}
+                      onChange={(e) => onUpdateSection(phase, index, { content: e.target.value })}
+                      placeholder="תאר את הפעילות"
+                      className="text-right bg-white border-gray-200"
+                      dir="rtl"
                     />
                   </div>
                 </div>

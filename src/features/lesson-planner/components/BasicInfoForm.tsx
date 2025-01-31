@@ -31,18 +31,18 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">נושא היחידה</Label>
         <div className="space-y-2">
+          <AssistantChatBox
+            context={lessonPlan.topic}
+            onApplySuggestion={(suggestion) => handleBasicInfoChange('topic', suggestion)}
+            placeholder="הצע נושא יחידה"
+            onSave={onSave}
+          />
           <Input
             value={lessonPlan.topic}
             onChange={handleChange('topic')}
             placeholder="הכנס את נושא היחידה"
             className="text-right"
             dir="rtl"
-          />
-          <AssistantChatBox
-            context={lessonPlan.topic}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('topic', suggestion)}
-            placeholder="הצע נושא יחידה"
-            onSave={onSave}
           />
         </div>
       </div>
@@ -76,18 +76,18 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">ידע קודם נדרש</Label>
         <div className="space-y-2">
+          <AssistantChatBox
+            context={lessonPlan.priorKnowledge}
+            onApplySuggestion={(suggestion) => handleBasicInfoChange('priorKnowledge', suggestion)}
+            placeholder="הצע ידע קודם נדרש"
+            onSave={onSave}
+          />
           <Textarea
             value={lessonPlan.priorKnowledge}
             onChange={handleChange('priorKnowledge')}
             placeholder="פרט את הידע הקודם הנדרש"
             className="text-right"
             dir="rtl"
-          />
-          <AssistantChatBox
-            context={lessonPlan.priorKnowledge}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('priorKnowledge', suggestion)}
-            placeholder="הצע ידע קודם נדרש"
-            onSave={onSave}
           />
         </div>
       </div>
@@ -113,6 +113,12 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">מטרות ברמת התוכן</Label>
         <div className="space-y-2">
+          <AssistantChatBox
+            context={lessonPlan.contentGoals}
+            onApplySuggestion={(suggestion) => handleBasicInfoChange('contentGoals', suggestion)}
+            placeholder="הצע מטרות תוכן"
+            onSave={onSave}
+          />
           <Textarea
             value={lessonPlan.contentGoals}
             onChange={handleChange('contentGoals')}
@@ -120,30 +126,24 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
             className="text-right"
             dir="rtl"
           />
-          <AssistantChatBox
-            context={lessonPlan.contentGoals}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('contentGoals', suggestion)}
-            placeholder="הצע מטרות תוכן"
-            onSave={onSave}
-          />
         </div>
       </div>
 
       <div className="text-right">
         <Label className="text-right">מטרות ברמת המיומנויות</Label>
         <div className="space-y-2">
+          <AssistantChatBox
+            context={lessonPlan.skillGoals}
+            onApplySuggestion={(suggestion) => handleBasicInfoChange('skillGoals', suggestion)}
+            placeholder="הצע מטרות מיומנות"
+            onSave={onSave}
+          />
           <Textarea
             value={lessonPlan.skillGoals}
             onChange={handleChange('skillGoals')}
             placeholder="פרט את מטרות המיומנויות"
             className="text-right"
             dir="rtl"
-          />
-          <AssistantChatBox
-            context={lessonPlan.skillGoals}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('skillGoals', suggestion)}
-            placeholder="הצע מטרות מיומנות"
-            onSave={onSave}
           />
         </div>
       </div>
