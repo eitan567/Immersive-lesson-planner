@@ -13,6 +13,7 @@ import { SaveProgressAlert } from './features/common/components/SaveProgressAler
 import { LessonPlannerHeader } from './features/lesson-planner/components/LessonPlannerHeader.tsx';
 import { LessonContent } from './features/lesson-planner/components/LessonContent.tsx';
 import type { LessonSection } from './features/lesson-planner/types.ts';
+import { Layout } from './features/common/components/Layout.tsx';
 
 const MainAppContent = () => {
   const { user } = useAuth();
@@ -62,66 +63,43 @@ const MainAppContent = () => {
     updateSections(updatedSections);
   };
 
+  const sidebarProps = {
+    saveInProgress,
+    lastSaved,
+    lessonTitle: lessonPlan?.basicInfo?.title,
+    totalSteps: (lessonPlan?.sections?.opening?.length || 0) +
+                (lessonPlan?.sections?.main?.length || 0) +
+                (lessonPlan?.sections?.summary?.length || 0)
+  };
+
   return (
-    <div className="h-screen flex flex-col">
-      <Navbar user={user} />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex bg-slate-50">
-        {/* Primary Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-4xl mx-auto space-y-6 rtl">
-            {error && <ErrorAlert message={error} />}
-
-      <Card>
-        {/* <CardHeader>
-          <LessonPlannerHeader />
-        </CardHeader> */}
-        <CardContent>
-                {lessonPlan && (
-                  <LessonContent
-                    currentStep={currentStep}
-                    lessonPlan={lessonPlan}
-                    saveInProgress={saveInProgress}
-                    lastSaved={lastSaved}
-                    handleBasicInfoChange={handleBasicInfoChange}
-                    addSection={addSection}
-                    handleSectionUpdate={handleSectionUpdate}
-                    setCurrentStep={setCurrentStep}
-                    handleExport={handleExport}
-                    generateLessonPlanText={generateLessonPlanText}
-                    saveCurrentPlan={saveCurrentPlan}
-                    removeSection={removeSection}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-
-        {/* Right Sidebar */}
-        <aside className="w-80 border-l border-slate-200 bg-white p-6 space-y-6">
-          <SaveProgressAlert
-            saveInProgress={saveInProgress}
-            lastSaved={lastSaved}
-          />
-          
+    <Layout user={user} sidebarProps={sidebarProps}>
+      <div className="p-6">
+        <div dir="rtl" className="max-w-4xl mx-auto space-y-6">
+          {error && <ErrorAlert message={error} />}
           <Card>
-            <CardContent className="p-4 space-y-2">
-              <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>
-              <div className="text-sm text-slate-600">
-                {lessonPlan?.basicInfo?.title || "ללא כותרת"}
-              </div>
-              <div className="text-sm text-slate-600">
-                {(lessonPlan?.sections?.opening?.length || 0) +
-                 (lessonPlan?.sections?.main?.length || 0) +
-                 (lessonPlan?.sections?.summary?.length || 0)} שלבים
-              </div>
+            <CardContent>
+              {lessonPlan && (
+                <LessonContent
+                  currentStep={currentStep}
+                  lessonPlan={lessonPlan}
+                  saveInProgress={saveInProgress}
+                  lastSaved={lastSaved}
+                  handleBasicInfoChange={handleBasicInfoChange}
+                  addSection={addSection}
+                  handleSectionUpdate={handleSectionUpdate}
+                  setCurrentStep={setCurrentStep}
+                  handleExport={handleExport}
+                  generateLessonPlanText={generateLessonPlanText}
+                  saveCurrentPlan={saveCurrentPlan}
+                  removeSection={removeSection}
+                />
+              )}
             </CardContent>
           </Card>
-        </aside>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

@@ -24,7 +24,18 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
   };
 
   return (
-    <nav className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 h-[72px] z-50 
+      bg-white/20 
+      backdrop-filter 
+      backdrop-blur-lg 
+      border-b 
+      border-slate-200/20 
+      px-6 
+      flex 
+      items-center 
+      justify-between 
+      shadow-sm
+      supports-[backdrop-filter]:bg-white/5">
       {/* Right side - User Profile and Logout */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-3">
