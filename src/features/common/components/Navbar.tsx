@@ -43,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
       {/* Right side - User Profile and Logout */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 overflow-hidden ml-2">
+          <div className="h-10 w-10 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 overflow-hidden mr-2">
             {user?.photoURL ? (
               <img src={user.photoURL} alt="User avatar" className="h-full w-full object-cover" />
             ) : (
@@ -57,9 +57,32 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
           <Button 
             variant="ghost" 
             onClick={handleSignOut}
-            className="mr-2 hover:bg-white/20 transition-colors duration-200"
+            className="mr-2 px-4 py-2 text-slate-600 hover:text-slate-900
+              bg-blue-900/10 hover:bg-white/20
+              backdrop-blur-sm
+              border border-white/20 hover:border-white/30
+              rounded-full
+              transition-all duration-200 ease-in-out
+              flex items-center gap-2
+              font-medium text-sm"
           >
-            התנתק
+            <span>התנתק</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="transform rotate-180"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
           </Button>
         </div>
       </div>
