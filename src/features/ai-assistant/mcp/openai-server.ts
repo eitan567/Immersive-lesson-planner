@@ -99,7 +99,8 @@ class AIServer {
       typeof a.context === 'string' &&
       typeof a.currentValue === 'string' &&
       typeof a.type === 'string' &&
-      ['topic', 'content', 'goals', 'duration', 'activity'].includes(a.type)
+      ['topic', 'content', 'goals', 'duration', 'activity'].includes(a.type) &&
+      (a.message === undefined || typeof a.message === 'string')
     );
     
     if (!isValid) {
@@ -107,7 +108,8 @@ class AIServer {
         hasContext: typeof a.context === 'string',
         hasCurrentValue: typeof a.currentValue === 'string',
         hasValidType: typeof a.type === 'string' && 
-                     ['topic', 'content', 'goals', 'duration', 'activity'].includes(a.type)
+                     ['topic', 'content', 'goals', 'duration', 'activity'].includes(a.type),
+        hasValidMessage: a.message === undefined || typeof a.message === 'string'
       });
     }
     
@@ -140,7 +142,7 @@ class AIServer {
       }
 
       try {
-        const prompt = this.createPrompt(args.type, args.context, args.currentValue);
+        const prompt = this.createPrompt(args.type, args.context, args.currentValue, args.message);
         logDebug('AIServer', 'Generated prompt:', prompt);
 
         logDebug('AIServer', 'Calling provider...');
@@ -182,6 +184,10 @@ class AIServer {
                 currentValue: {
                   type: 'string',
                 },
+                message: {
+                  type: 'string',
+                  description: 'Optional chat message for refining suggestions',
+                },
               },
               required: ['context', 'type', 'currentValue'],
             },
@@ -191,11 +197,15 @@ class AIServer {
     });
   }
 
-  private createPrompt(type: string, context: string, currentValue: string): string {
-    const basePrompt = `בהתבסס על ההקשר הבא: "${context}"
-והתוכן הנוכחי: "${currentValue || 'ריק'}"
+  private createPrompt(type: string, context: string, currentValue: string, message?: string): string {
+    let basePrompt = `בהתבסס על ההקשר הבא: "${context}"
+והתוכן הנוכחי: "${currentValue || 'ריק'}"`;
 
-`;
+    if (message) {
+      basePrompt += `\nבהתייחס להודעה הבאה: "${message}"`;
+    }
+
+    basePrompt += '\n\n';
 
     switch (type) {
       case 'topic':
@@ -209,7 +219,7 @@ class AIServer {
       case 'activity':
         return basePrompt + 'הצע פעילות לימודית שתנצל את היכולות הייחודיות של החדר האימרסיבי.';
       default:
-        return basePrompt + 'הצע שיפור או חלופה לתוכן הנוכחי.';
+        return basePrompt + (message ? 'התייחס להודעה והצע שיפור או חלופה לתוכן הנוכחי.' : 'הצע שיפור או חלופה לתוכן הנוכחי.');
     }
   }
 
@@ -244,7 +254,7 @@ class AIServer {
           throw new Error('Invalid arguments');
         }
 
-        const prompt = this.createPrompt(args.type, args.context, args.currentValue);
+        const prompt = this.createPrompt(args.type, args.context, args.currentValue, args.message);
         logDebug('AIServer', 'Generated prompt:', prompt);
 
         const suggestion = await this.provider.generateCompletion(prompt);

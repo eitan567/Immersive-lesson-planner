@@ -2,9 +2,10 @@ import * as React from "react"
 import { useState } from 'react';
 import { Button } from "./button.tsx"
 import { Textarea } from "./textarea.tsx"
+import { Input } from "./input.tsx"
 import { cn } from "../../lib/utils.ts"
 import { useMcpTool } from '../../features/ai-assistant/hooks/useMcp.ts';
-import { SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, XMarkIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 interface AITextareaProps extends React.ComponentProps<"textarea"> {
   context: string;
@@ -15,11 +16,13 @@ interface AITextareaProps extends React.ComponentProps<"textarea"> {
 const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
   ({ className, context, fieldType = 'content', onSave, value, onChange, ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isChatMode, setIsChatMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const [suggestion, setSuggestion] = useState('');
+    const [chatMessage, setChatMessage] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    const generateSuggestion = async () => {
+    const generateSuggestion = async (message?: string) => {
       setLoading(true);
       setError(null);
       setIsOpen(true);
@@ -31,7 +34,8 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
           arguments: {
             context,
             currentValue: value?.toString() || '',
-            type: fieldType
+            type: fieldType,
+            ...(message && { message })
           }
         });
         
@@ -66,12 +70,32 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
           await onSave();
         }
         setIsOpen(false);
+        setIsChatMode(false);
         setSuggestion('');
         setError(null);
       } catch (error) {
         setError(error instanceof Error ? error.message : 'שגיאה בשמירת השינויים');
         console.error('Failed to apply suggestion:', error);
       }
+    };
+
+    const handleSendMessage = async () => {
+      if (chatMessage.trim()) {
+        await generateSuggestion(chatMessage);
+        setChatMessage('');
+      }
+    };
+
+    const handleChatKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    };
+
+    const toggleChatMode = () => {
+      setIsChatMode(!isChatMode);
+      setIsOpen(true);
     };
 
     return (
@@ -85,7 +109,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
             {...props}
           />
           <button
-            onClick={generateSuggestion}
+            onClick={() => generateSuggestion()}
             className="flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
             title="בקש הצעה לשיפור"
           >
@@ -94,11 +118,21 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
         </div>
 
         {isOpen && (
-          <div className="top-[24px] left-[-11px] absolute w-[-webkit-fill-available] z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[11px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
+          <div className={cn(
+            "z-[9999] p-4 bg-white rounded-lg shadow-lg border border-gray-200",
+            isChatMode 
+              ? "fixed inset-0 overflow-y-auto" 
+              : "top-[35px] left-[-13px] absolute w-[-webkit-fill-available] before:content-[''] before:absolute before:top-[-8px] before:left-[11px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform"
+          )}>
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-700">הצעה לשיפור</h3>
+              <h3 className="text-sm font-medium text-gray-700">
+                {isChatMode ? 'שיחה' : 'הצעה לשיפור'}
+              </h3>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsChatMode(false);
+                }}
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <XMarkIcon className="h-4 w-4 text-gray-500" />
@@ -115,7 +149,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                 <div className="text-center py-4">
                   <p className="text-sm text-red-600">{error}</p>
                   <Button
-                    onClick={generateSuggestion}
+                    onClick={() => generateSuggestion()}
                     className="mt-2"
                   >
                     נסה שוב
@@ -126,10 +160,41 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                   <Textarea
                     value={suggestion}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSuggestion(e.currentTarget.value)}
-                    className="min-h-[200px] w-full"
+                    className={cn(
+                      "w-full",
+                      isChatMode ? "h-[calc(100vh-120px)]" : "min-h-[200px]"
+                    )}
                     dir="rtl"
                   />
                   <div className="flex justify-end gap-2">
+                    {isChatMode && (
+                      <div className="flex-1 flex gap-2">
+                        <Input
+                          value={chatMessage}
+                          onChange={(e) => setChatMessage(e.target.value)}
+                          onKeyDown={handleChatKeyPress}
+                          placeholder="כתוב הודעה..."
+                          className="flex-1"
+                          dir="rtl"
+                        />
+                        <Button
+                          onClick={handleSendMessage}
+                          variant="ghost"
+                          size="sm"
+                          className="px-2"
+                        >
+                          <PaperAirplaneIcon className="h-5 w-5 text-blue-800 rotate-180" />
+                        </Button>
+                      </div>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleChatMode}
+                      className="bg-white hover:bg-gray-50"
+                    >
+                      {isChatMode ? 'סגור שיחה' : 'פתח שיחה'}     
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
