@@ -3,7 +3,7 @@ import { Button } from "../../../components/ui/button.tsx";
 import { Input } from "../../../components/ui/input.tsx";
 import { Card } from "../../../components/ui/card.tsx";
 import { useMcpTool } from '../../ai-assistant/hooks/useMcp.ts';
-import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon} from '@heroicons/react/24/outline';
 
 interface Message {
   text: string;
@@ -118,8 +118,8 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   return (
     <Card className="mt-4">
       <div className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-medium text-slate-800">שיחה על פרטי השיעור</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="font-medium text-slate-800 mb-1">שיחה על פרטי השיעור</h3>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-slate-500 hover:text-slate-700"
@@ -127,14 +127,14 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
             {isOpen ? (
               <XMarkIcon className="h-5 w-5" />
             ) : (
-              <PaperAirplaneIcon className="h-5 w-5" />
+              <ChatBubbleLeftRightIcon className="h-5 w-5" />
             )}
           </button>
         </div>
 
         {isOpen && (
           <div className="space-y-4">
-            <div className="h-[300px] overflow-y-auto border rounded-lg p-3 space-y-3 bg-gray-50 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-500 hover:scrollbar-thumb-slate-400 scrollbar-thumb-rounded-md">
+            <div className="h-[calc(100vh-470px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-gray-50 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-500 hover:scrollbar-thumb-slate-400 scrollbar-thumb-rounded-md">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
                   אפשר לשאול שאלות או לבקש שינויים בפרטי השיעור.
