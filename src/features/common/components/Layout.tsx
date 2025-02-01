@@ -11,6 +11,7 @@ interface LayoutProps {
     lastSaved: Date | null;
     lessonTitle?: string;
     totalSteps: number;
+    onUpdateField: (fieldName: string, value: string) => Promise<void>;
   };
 }
 

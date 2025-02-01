@@ -4,12 +4,8 @@ export interface GenerateSuggestionArgs {
   currentValue: string;
   message?: string;
 }
-  
-export interface AIResponse {
-  content: Array<{
-    type: string;
-    text: string;
-  }>;
+
+export interface UpdateLessonFieldArgs {
+  message: string;
+  fieldLabels: Record<string, string>;
 }
-  
-export type SuggestionType = 'topic' | 'content' | 'goals' | 'duration' | 'activity';

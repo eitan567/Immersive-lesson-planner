@@ -9,7 +9,7 @@ import LoginForm from './features/auth/LoginForm.tsx';
 import { LoadingSpinner } from './components/ui/loading-spinner.tsx';
 import { ErrorAlert } from './features/common/components/ErrorAlert.tsx';
 import { LessonContent } from './features/lesson-planner/components/LessonContent.tsx';
-import type { LessonSection } from './features/lesson-planner/types.ts';
+import type { LessonPlan, LessonSection } from './features/lesson-planner/types.ts';
 import { Layout } from './features/common/components/Layout.tsx';
 import { usePreventPageReset } from './hooks/usePreventPageReset.ts';
 
@@ -51,14 +51,30 @@ const MainContent = React.memo(() => {
     updateSections(updatedSections);
   }, [lessonPlan, updateSections]);
 
+  const handleFieldUpdate = React.useCallback(async (fieldName: string, value: string) => {
+    if (!lessonPlan) return;
+    
+    // Only allow updating fields that exist in LessonPlan type
+    const validFields: (keyof LessonPlan)[] = [
+      'topic', 'duration', 'gradeLevel', 'priorKnowledge', 
+      'position', 'contentGoals', 'skillGoals'
+    ];
+    
+    if (validFields.includes(fieldName as keyof LessonPlan)) {
+      handleBasicInfoChange(fieldName as keyof LessonPlan, value);
+      await saveCurrentPlan();
+    }
+  }, [handleBasicInfoChange, saveCurrentPlan, lessonPlan]);
+
   const sidebarProps = React.useMemo(() => ({
     saveInProgress,
     lastSaved,
-    lessonTitle: lessonPlan?.basicInfo?.title,
+    lessonTitle: lessonPlan?.basicInfo?.title || '',
     totalSteps: (lessonPlan?.sections?.opening?.length || 0) +
                 (lessonPlan?.sections?.main?.length || 0) +
-                (lessonPlan?.sections?.summary?.length || 0)
-  }), [saveInProgress, lastSaved, lessonPlan?.basicInfo?.title, lessonPlan?.sections]);
+                (lessonPlan?.sections?.summary?.length || 0),
+    onUpdateField: handleFieldUpdate
+  }), [saveInProgress, lastSaved, lessonPlan?.basicInfo?.title, lessonPlan?.sections, handleFieldUpdate]);
 
   // Show loading spinner while auth is initializing
   if (authLoading) {

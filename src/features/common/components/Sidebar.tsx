@@ -1,19 +1,22 @@
 import React from 'react';
 import { Card, CardContent } from '../../../components/ui/card.tsx';
 import { SaveProgressAlert } from '../components/SaveProgressAlert.tsx';
+import { LessonFieldChatBox } from '../../lesson-planner/components/LessonFieldChatBox.tsx';
 
 interface SidebarProps {
   saveInProgress: boolean;
   lastSaved: Date | null;
   lessonTitle?: string;
   totalSteps: number;
+  onUpdateField: (fieldName: string, value: string) => Promise<void>;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   saveInProgress,
   lastSaved,
   lessonTitle,
-  totalSteps
+  totalSteps,
+  onUpdateField
 }) => {
   return (
     <aside className="w-80 border-r border-slate-200 bg-white shrink-0">
@@ -33,6 +36,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </CardContent>
         </Card>
+        
+        <LessonFieldChatBox onUpdateField={onUpdateField} />
       </div>
     </aside>
   );
