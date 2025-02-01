@@ -16,6 +16,7 @@ export const SaveStatus = ({ onSave, saving, lastSaved, className = '' ,savingTe
       <Button 
         onClick={onSave}
         disabled={saving}
+        className="text-[#681bc2] border border-[#681bc2]"
       >
         {saving ? savingText : buttonText}
       </Button>

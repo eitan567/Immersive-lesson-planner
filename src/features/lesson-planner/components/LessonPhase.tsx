@@ -61,7 +61,7 @@ const LessonPhase = ({
   return (
     <Card className="mt-4 border-gray-200">
       <CardContent>
-        <h3 className="text-lg font-semibold mb-4 text-right text-gray-800">{title}</h3>
+        <h3 className="text-[1rem] font-normal mb-2 text-[#540ba9]">{title}</h3>
         <div className="space-y-4">
           {sections.map((section, index) => (
             <Card key={index} className="p-4 border-gray-200 bg-white relative">                           
@@ -135,7 +135,7 @@ const LessonPhase = ({
                 </div>
                 <Button 
                   onClick={() => onRemoveSection(phase, index)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+                  className="text-[#681bc2] border border-[#681bc2] flex items-center justify-center gap-2"
                 >
                   <TrashIcon className="h-5 w-5" />
                   מחק פעילות
@@ -145,7 +145,7 @@ const LessonPhase = ({
           ))}
           <Button 
             onClick={() => onAddSection(phase)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+            className="w-full text-[#681bc2] border border-[#681bc2] flex items-center justify-center gap-2"
           >
             <PlusIcon className="h-5 w-5" />
             הוסף פעילות

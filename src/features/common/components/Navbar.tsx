@@ -42,7 +42,7 @@ export const Navbar = React.memo(({ user }: NavbarProps) => {
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
           <img src="/logo.svg" alt="Logo" className="h-8 w-8 mr-3" />
-          <span className="text-xl font-semibold text-slate-800">מתכנן שיעורים לחדר אימרסיבי</span>
+          <span className="text-xl font-semibold text-[#28026f]">מתכנן שיעורים לחדר אימרסיבי</span>
         </div>
       </div>      
 

@@ -23,7 +23,7 @@ export const LessonBuilder = ({
 }: LessonBuilderProps) => {
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-800">בניית השיעור</h1>
+      <h1 className="text-[1.2rem] font-semibold text-[#540ba9]">בניית השיעור</h1>
       <LessonPhase
         phase="opening"
         title="פתיחה"

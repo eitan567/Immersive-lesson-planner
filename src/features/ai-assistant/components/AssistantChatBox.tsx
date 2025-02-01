@@ -182,7 +182,7 @@ export const AssistantChatBox = ({
                     variant="outline"
                     size="sm"
                     onClick={handleApply}
-                    className="bg-white hover:bg-gray-50"
+                    className="text-[#681bc2] border border-[#681bc2]"
                   >
                     אישור
                   </Button>

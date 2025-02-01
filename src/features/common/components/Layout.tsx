@@ -45,7 +45,7 @@ export const Layout = React.memo(({ children, user, sidebarProps }: LayoutProps)
         </div>
         
         <main className="flex-1 relative">
-          <div className="absolute inset-0 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-blue-500 hover:scrollbar-thumb-slate-400 scrollbar-thumb-rounded-md" dir="ltr">
+          <div className="absolute inset-0 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md" dir="ltr">
             {children}
           </div>
         </main>

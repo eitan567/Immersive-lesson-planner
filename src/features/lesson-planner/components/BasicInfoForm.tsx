@@ -26,8 +26,8 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
   };
 
   return (
-    <div className="space-y-4 rtl">
-      <h1 className="text-2xl font-semibold text-slate-800">פרטי השיעור</h1>
+    <div className="space-y-2 rtl">
+      <h1 className="text-[1.2rem] font-semibold text-[#540ba9]">פרטי השיעור</h1>
       <div className="text-right">
         <Label className="text-right">נושא היחידה</Label>
         <div className="space-y-2">
