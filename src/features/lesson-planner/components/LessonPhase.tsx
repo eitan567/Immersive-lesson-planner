@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "../../../components/ui/card.tsx";
 import { Label } from "../../../components/ui/label.tsx";
-import { Textarea } from "../../../components/ui/textarea.tsx";
+import { AITextarea } from "../../../components/ui/ai-textarea.tsx";
 import { Button } from "../../../components/ui/button.tsx";
 import { 
   Select,
@@ -12,7 +12,6 @@ import {
 } from "../../../components/ui/select.tsx";
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import type { LessonSection } from '../types.ts';
-import { AssistantChatBox } from '../../ai-assistant/components/AssistantChatBox.tsx';
 
 interface LessonPhaseProps {
   phase: 'opening' | 'main' | 'summary';
@@ -70,20 +69,15 @@ const LessonPhase = ({
                 <div className="text-right">
                   <Label className="text-right text-gray-700">תוכן/פעילות</Label>
                   <div className="space-y-2">
-                    <AssistantChatBox
-                      context={section.content}
-                      onApplySuggestion={(suggestion) =>
-                        onUpdateSection(phase, index, { content: suggestion })
-                      }
-                      placeholder="צור תיאור פעילות חדש"
-                      onSave={onSave}
-                    />
-                    <Textarea
+                    <AITextarea
                       value={section.content}
                       onChange={(e) => onUpdateSection(phase, index, { content: e.target.value })}
                       placeholder="תאר את הפעילות"
                       className="text-right bg-white border-gray-200"
                       dir="rtl"
+                      context={section.content}
+                      fieldType="activity"
+                      onSave={onSave}
                     />
                   </div>
                 </div>
@@ -138,15 +132,14 @@ const LessonPhase = ({
                       </SelectContent>
                     </Select>                    
                   </div>
-                    {/* <TrashIcon className="h-4 w-4 absolute left-2 top-2 text-red-600 hover:text-red-400 hover:cursor-pointer" onClick={() => onRemoveSection(phase, index)}/> */}                  
                 </div>
-                  <Button 
-                    onClick={() => onRemoveSection(phase, index)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                    מחק פעילות
-                  </Button>
+                <Button 
+                  onClick={() => onRemoveSection(phase, index)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                  מחק פעילות
+                </Button>
               </div>
             </Card>
           ))}

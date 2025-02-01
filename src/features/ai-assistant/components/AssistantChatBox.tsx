@@ -77,14 +77,14 @@ export const AssistantChatBox = ({
     <div className="absolute left-6 w-full">
       <button
         onClick={generateSuggestion}
-        className="absolute  left-2 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors  outline-none focus:outline-none"
+        className="absolute left-2 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors  outline-none focus:outline-none"
         title="בקש הצעה לשיפור"
       >
         <SparklesIcon className="h-5 w-5 text-blue-800" />
       </button>
 
       {isOpen && (
-        <div className="w-[97.2%] absolute top-8 left-0 z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[13px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
+        <div className="w-full absolute top-8 left-0 z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[13px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-sm font-medium text-gray-700">הצעה לשיפור</h3>
             <button

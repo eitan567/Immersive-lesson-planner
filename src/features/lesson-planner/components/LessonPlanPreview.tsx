@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card.tsx";
-// import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { AITextarea } from "../../../components/ui/ai-textarea.tsx";
 
 interface LessonPlanPreviewProps {
   content: string;
@@ -25,11 +25,10 @@ const LessonPlanPreview = ({ content: initialContent, onContentChange }: LessonP
       <CardHeader className="border-b border-gray-100">
         <CardTitle className="text-right flex items-center justify-end gap-2 text-gray-800">
           <h1 className="text-2xl font-semibold text-slate-800">תצוגה מקדימה של תכנית השיעור</h1>
-          {/* <DocumentTextIcon className="h-5 w-5 text-blue-600" /> */}
         </CardTitle>
       </CardHeader>
       <CardContent className="bg-white">
-        <textarea
+        <AITextarea
           value={content}
           onChange={handleContentChange}
           dir="rtl"
@@ -43,6 +42,8 @@ const LessonPlanPreview = ({ content: initialContent, onContentChange }: LessonP
             fontFeatureSettings: '"kern"',
             WebkitFontSmoothing: 'antialiased'
           }}
+          context={content}
+          fieldType="content"
         />
       </CardContent>
     </Card>

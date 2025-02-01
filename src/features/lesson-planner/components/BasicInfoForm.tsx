@@ -1,7 +1,8 @@
 import React from 'react';
 import { Input } from "../../../components/ui/input.tsx";
 import { Label } from "../../../components/ui/label.tsx";
-import { Textarea } from "../../../components/ui/textarea.tsx";
+import { AIInput } from "../../../components/ui/ai-input.tsx";
+import { AITextarea } from "../../../components/ui/ai-textarea.tsx";
 import { 
   Select, 
   SelectContent, 
@@ -10,7 +11,6 @@ import {
   SelectValue 
 } from "../../../components/ui/select.tsx";
 import type { LessonPlan } from '../types.ts';
-import { AssistantChatBox } from '../../ai-assistant/components/AssistantChatBox.tsx';
 
 type BasicInfoFormProps = {
   lessonPlan: Pick<LessonPlan, 'topic' | 'duration' | 'gradeLevel' | 'priorKnowledge' | 'position' | 'contentGoals' | 'skillGoals'>;
@@ -31,18 +31,15 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">נושא היחידה</Label>
         <div className="space-y-2">
-          <AssistantChatBox
-            context={lessonPlan.topic}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('topic', suggestion)}
-            placeholder="הצע נושא יחידה"
-            onSave={onSave}
-          />
-          <Input
+          <AIInput
             value={lessonPlan.topic}
             onChange={handleChange('topic')}
             placeholder="הכנס את נושא היחידה"
             className="text-right"
             dir="rtl"
+            context={lessonPlan.topic}
+            fieldType="topic"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -76,18 +73,15 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">ידע קודם נדרש</Label>
         <div className="space-y-2">
-          <AssistantChatBox
-            context={lessonPlan.priorKnowledge}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('priorKnowledge', suggestion)}
-            placeholder="הצע ידע קודם נדרש"
-            onSave={onSave}
-          />
-          <Textarea
+          <AITextarea
             value={lessonPlan.priorKnowledge}
             onChange={handleChange('priorKnowledge')}
             placeholder="פרט את הידע הקודם הנדרש"
             className="text-right"
             dir="rtl"
+            context={lessonPlan.priorKnowledge}
+            fieldType="content"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -113,18 +107,15 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">מטרות ברמת התוכן</Label>
         <div className="space-y-2">
-          <AssistantChatBox
-            context={lessonPlan.contentGoals}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('contentGoals', suggestion)}
-            placeholder="הצע מטרות תוכן"
-            onSave={onSave}
-          />
-          <Textarea
+          <AITextarea
             value={lessonPlan.contentGoals}
             onChange={handleChange('contentGoals')}
             placeholder="פרט את מטרות התוכן"
             className="text-right"
             dir="rtl"
+            context={lessonPlan.contentGoals}
+            fieldType="goals"
+            onSave={onSave}
           />
         </div>
       </div>
@@ -132,18 +123,15 @@ const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoF
       <div className="text-right">
         <Label className="text-right">מטרות ברמת המיומנויות</Label>
         <div className="space-y-2">
-          <AssistantChatBox
-            context={lessonPlan.skillGoals}
-            onApplySuggestion={(suggestion) => handleBasicInfoChange('skillGoals', suggestion)}
-            placeholder="הצע מטרות מיומנות"
-            onSave={onSave}
-          />
-          <Textarea
+          <AITextarea
             value={lessonPlan.skillGoals}
             onChange={handleChange('skillGoals')}
             placeholder="פרט את מטרות המיומנויות"
             className="text-right"
             dir="rtl"
+            context={lessonPlan.skillGoals}
+            fieldType="goals"
+            onSave={onSave}
           />
         </div>
       </div>
