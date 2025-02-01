@@ -56,10 +56,11 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
     const handleApply = async () => {
       try {
         if (onChange) {
-          const event = {
+          const syntheticEvent = {
+            currentTarget: { value: suggestion },
             target: { value: suggestion }
           } as React.ChangeEvent<HTMLInputElement>;
-          onChange(event);
+          onChange(syntheticEvent);
         }
         if (onSave) {
           await onSave();
@@ -94,7 +95,7 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
         </div>
 
         {isOpen && (
-          <div className="absolute w-full z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[11px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
+          <div className="left-[-11px] absolute w-[-webkit-fill-available] z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-9px] before:left-[13px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-medium text-gray-700">הצעה לשיפור</h3>
               <button
@@ -125,7 +126,7 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
                 <div className="space-y-2">
                   <Input
                     value={suggestion}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSuggestion(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSuggestion(e.currentTarget.value)}
                     className="w-full"
                     dir="rtl"
                   />

@@ -56,10 +56,11 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
     const handleApply = async () => {
       try {
         if (onChange) {
-          const event = {
+          const syntheticEvent = {
+            currentTarget: { value: suggestion },
             target: { value: suggestion }
           } as React.ChangeEvent<HTMLTextAreaElement>;
-          onChange(event);
+          onChange(syntheticEvent);
         }
         if (onSave) {
           await onSave();
@@ -85,7 +86,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
           />
           <button
             onClick={generateSuggestion}
-            className="left-2 top-1.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
+            className="flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
             title="בקש הצעה לשיפור"
           >
             <SparklesIcon className="h-5 w-5 text-blue-800" />
@@ -93,7 +94,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
         </div>
 
         {isOpen && (
-          <div className="absolute w-full z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[11px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
+          <div className="top-[24px] left-[-11px] absolute w-[-webkit-fill-available] z-[9999] mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 before:content-[''] before:absolute before:top-[-8px] before:left-[11px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-sm font-medium text-gray-700">הצעה לשיפור</h3>
               <button
@@ -124,7 +125,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                 <div className="space-y-2">
                   <Textarea
                     value={suggestion}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSuggestion(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSuggestion(e.currentTarget.value)}
                     className="min-h-[200px] w-full"
                     dir="rtl"
                   />
