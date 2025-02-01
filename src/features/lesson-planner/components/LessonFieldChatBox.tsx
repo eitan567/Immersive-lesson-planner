@@ -69,7 +69,12 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
       // Parse the AI response to get field name and value
       try {
-        const responseData = JSON.parse(aiResponse);
+        // Extract JSON content using regex to find object between curly braces
+        const jsonMatch = aiResponse.match(/({[\s\S]*?})/);
+        if (!jsonMatch) {
+          throw new Error('לא נמצא תוכן JSON בתשובה');
+        }
+        const responseData = JSON.parse(jsonMatch[1]);
         if (responseData.fieldName && responseData.value) {
           await onUpdateField(responseData.fieldName, responseData.value);
           
