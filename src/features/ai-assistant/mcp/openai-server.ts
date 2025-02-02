@@ -11,7 +11,7 @@ import {
 import { CONFIG } from "./config.ts";
 import { AIProvider } from "./providers/types.ts";
 import { logDebug, logError } from "./utils/logging.ts";
-import { createCorsHeaders } from "./utils/http.ts";
+// import { createCorsHeaders } from "./utils/http.ts";
 
 import {
   GenerateSuggestionArgs,
@@ -107,99 +107,450 @@ class AIServer {
   /**
    * Type guard to validate UpdateLessonFieldArgs.
    */
-  private isValidUpdateFieldArgs(args: unknown): args is UpdateLessonFieldArgs {
-    if (!args || typeof args !== "object") return false;
-    const a = args as Partial<UpdateLessonFieldArgs>;
-    return (
-      typeof a.message === "string" &&
-      typeof a.fieldLabels === "object" &&
-      a.fieldLabels !== null
+ 
+  // Update these methods in your openai-server.ts file
+
+private isValidUpdateFieldArgs(args: unknown): args is UpdateLessonFieldArgs {
+  if (!args || typeof args !== 'object') {
+    logError('Validation', 'args is not an object', args);
+    return false;
+  }
+
+  const a = args as Partial<UpdateLessonFieldArgs>;
+  
+  // Validate message
+  if (typeof a.message !== 'string' || !a.message.trim()) {
+    logError('Validation', 'invalid message', a.message);
+    return false;
+  }
+
+  // Validate fieldLabels
+  if (!a.fieldLabels || typeof a.fieldLabels !== 'object' || Array.isArray(a.fieldLabels)) {
+    logError('Validation', 'invalid fieldLabels', a.fieldLabels);
+    return false;
+  }
+
+  // Validate currentValues if provided
+  if (a.currentValues !== undefined) {
+    if (typeof a.currentValues !== 'object' || Array.isArray(a.currentValues)) {
+      logError('Validation', 'invalid currentValues', a.currentValues);
+      return false;
+    }
+  }
+
+  // rephrase is optional boolean
+  if (a.rephrase !== undefined && typeof a.rephrase !== 'boolean') {
+    logError('Validation', 'invalid rephrase flag', a.rephrase);
+    return false;
+  }
+
+  return true;
+}
+
+// Add this helper function to your openai-server.ts
+private cleanJsonResponse(response: string): string {
+  try {
+    console.log('Original response:', response);
+    
+    // First, try to find an array pattern
+    const arrayMatch = response.match(/\[[\s\S]*\]/);
+    if (arrayMatch) {
+      const cleaned = arrayMatch[0].trim();
+      console.log('Found array JSON:', cleaned);
+      // Verify it's valid JSON
+      JSON.parse(cleaned);
+      return cleaned;
+    }
+    
+    // If no array found, try to find a single object and wrap it in an array
+    const objectMatch = response.match(/\{[\s\S]*\}/);
+    if (objectMatch) {
+      const cleaned = `[${objectMatch[0].trim()}]`;
+      console.log('Found object JSON, wrapping in array:', cleaned);
+      // Verify it's valid JSON
+      JSON.parse(cleaned);
+      return cleaned;
+    }
+    
+    console.error('No valid JSON structure found');
+    throw new Error('No valid JSON structure found in response');
+  } catch (error) {
+    console.error('Cleaning error:', error);
+    throw error;
+  }
+}
+
+async handleHttpRequest(request: Request): Promise<Response> {
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Content-Type": "application/json"
+  };
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
+  if (request.method !== "POST") {
+    return new Response(
+      JSON.stringify({
+        jsonrpc: "2.0",
+        error: {
+          code: -32600,
+          message: "Method not allowed"
+        },
+        id: null
+      }),
+      {
+        status: 405,
+        headers: corsHeaders
+      }
     );
   }
+
+  try {
+    const body = await request.json();
+    
+    if (body.method !== "call_tool") {
+      throw new Error("Unsupported method");
+    }
+
+    // Validate server name
+    if (body.params.server_name !== "ai-server") {
+      return new Response(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: {
+            code: -32601,
+            message: "Server not found"
+          },
+          id: body.id
+        }),
+        {
+          status: 404,
+          headers: corsHeaders
+        }
+      );
+    }
+
+    switch (body.params.name) {
+      case "generate_suggestion": {
+        const rawArgs = body.params.arguments;
+        
+        try {
+          // Validate arguments first
+          if (!this.isValidSuggestionArgs(rawArgs)) {
+            return new Response(
+              JSON.stringify({
+                jsonrpc: "2.0",
+                error: {
+                  code: -32602,
+                  message: "Invalid arguments for generate_suggestion"
+                },
+                id: body.id
+              }),
+              {
+                status: 400,
+                headers: corsHeaders
+              }
+            );
+          }
+
+          // Generate the suggestion using the same flow as MCP handler
+          console.log('Generating suggestion with args:', rawArgs);
+          const prompt = this.createGeneratePrompt(rawArgs as GenerateSuggestionArgs);
+          console.log('Using prompt:', prompt);
+          const suggestion = await this.provider.generateCompletion(prompt);
+          console.log('Generated suggestion:', suggestion);
+
+          return new Response(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              result: {
+                content: [{ type: "text", text: suggestion }]
+              },
+              id: body.id
+            }),
+            {
+              status: 200,
+              headers: corsHeaders
+            }
+          );
+        } catch (error) {
+          console.error('Generate suggestion error:', error);
+          return new Response(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              error: {
+                code: -32603,
+                message: error instanceof Error ? error.message : "Failed to generate suggestion"
+              },
+              id: body.id
+            }),
+            {
+              status: 500,
+              headers: corsHeaders
+            }
+          );
+        }
+      }
+      
+      case "update_lesson_field": {
+        const rawArgs = body.params.arguments;
+        
+        if (!this.isValidUpdateFieldArgs(rawArgs)) {
+          return new Response(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              error: {
+                code: -32602,
+                message: "Invalid arguments for update_lesson_field"
+              },
+              id: body.id
+            }),
+            {
+              status: 400,
+              headers: corsHeaders
+            }
+          );
+        }
+      
+        try {
+          const prompt = this.createUpdatePrompt(rawArgs);
+          console.log('Sending prompt:', prompt);
+      
+          const response = await this.provider.generateCompletion(prompt);
+          console.log('Received response:', response);
+          
+          if (!this.validateResponse(response)) {
+            console.error('Response validation failed');
+            throw new Error('Invalid response format');
+          }
+      
+          const cleaned = this.cleanJsonResponse(response);
+          console.log('Final cleaned response:', cleaned);
+          
+          return new Response(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              result: {
+                content: [{ type: "text", text: cleaned }]
+              },
+              id: body.id
+            }),
+            {
+              status: 200,
+              headers: corsHeaders
+            }
+          );
+      
+        } catch (error) {
+          console.error('Handler error:', error);
+          return new Response(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              error: {
+                code: -32603,
+                message: error instanceof Error ? error.message : "Failed to generate completion"
+              },
+              id: body.id
+            }),
+            {
+              status: 500,
+              headers: corsHeaders
+            }
+          );
+        }
+      }
+
+      // Handle other cases...
+      default:
+        return new Response(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: -32601,
+              message: "Unknown tool"
+            },
+            id: body.id
+          }),
+          {
+            status: 400,
+            headers: corsHeaders
+          }
+        );
+    }
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        jsonrpc: "2.0",
+        error: {
+          code: -32603,
+          message: error instanceof Error ? error.message : "Internal server error"
+        },
+        id: null
+      }),
+      {
+        status: 500,
+        headers: corsHeaders
+      }
+    );
+  }
+}
+
+private validateResponse(response: string): boolean {
+  try {
+    console.log('Original response:', response);
+    const cleaned = this.cleanJsonResponse(response);
+    console.log('Cleaned response:', cleaned);
+    
+    const parsed = JSON.parse(cleaned);
+    console.log('Parsed response:', parsed);
+    
+    const validFields = ['topic', 'duration', 'gradeLevel', 'priorKnowledge',
+                        'position', 'contentGoals', 'skillGoals'];
+
+    // If it's a single object, wrap it in an array
+    const updates = Array.isArray(parsed) ? parsed : [parsed];
+    
+    // Validate each update
+    return updates.every(update => {
+      // Check required fields
+      if (!update.fieldToUpdate || !update.userResponse || !update.newValue) {
+        console.log('Missing fields for update:', update);
+        return false;
+      }
+      
+      console.log('typeof update.newValue:', typeof update.newValue !== 'string');
+      // Check types
+      if (typeof update.fieldToUpdate !== 'string' ||
+          typeof update.userResponse !== 'string' ||
+          typeof update.newValue !== 'string') {
+        console.log('Invalid types for update:', update);
+        return false;
+      }
+      
+      // Check field key validity
+      if (!validFields.includes(update.fieldToUpdate)) {
+        console.log('Invalid field key:', update.fieldToUpdate);
+        return false;
+      }
+      
+      return true;
+    });
+  } catch (error) {
+    console.error('Validation error:', error);
+    return false;
+  }
+}
 
   /**
    * Registers tool handlers for the MCP server.
    */
   private setupToolHandlers(): void {
     // ListTools handler: returns the available tools
-    this.mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
-        {
-          name: "generate_suggestion",
-          description: "Generate an AI suggestion for lesson plan content",
-          inputSchema: {
-            type: "object",
-            properties: {
-              context: {
-                type: "string",
-                description: "Current content or context"
-              },
-              type: {
-                type: "string",
-                enum: ["topic", "content", "goals", "duration", "activity"]
-              },
-              currentValue: { type: "string" },
-              message: {
-                type: "string",
-                description: "Optional chat message for refining suggestions"
-              }
+    // SetUp tools
+    const tools = [
+      {
+        name: "generate_suggestion",
+        description: "Generate an AI suggestion for lesson plan content",
+        inputSchema: {
+          type: "object",
+          properties: {
+            context: {
+              type: "string",
+              description: "Current content or context"
             },
-            required: ["context", "type", "currentValue"]
-          }
-        },
-        {
-          name: "update_lesson_field",
-          description: "Parse user message and update lesson field",
-          inputSchema: {
-            type: "object",
-            properties: {
-              message: { type: "string" },
-              fieldLabels: {
-                type: "object",
-                additionalProperties: { type: "string" }
-              }
+            type: {
+              type: "string",
+              enum: ["topic", "content", "goals", "duration", "activity"]
             },
-            required: ["message", "fieldLabels"]
-          }
+            currentValue: { type: "string" },
+            message: {
+              type: "string",
+              description: "Optional chat message for refining suggestions"
+            }
+          },
+          required: ["context", "type", "currentValue"]
         }
-      ]
+      },
+      {
+        name: "update_lesson_field",
+        description: "Parse user message and update lesson field",
+        inputSchema: {
+          type: "object",
+          properties: {
+            message: { type: "string" },
+            fieldLabels: {
+              type: "object",
+              additionalProperties: { type: "string" }
+            },
+            rephrase: {
+              type: "boolean",
+              description: "Whether to rephrase/improve the field content instead of direct update"
+            },
+            currentValues: {
+              type: "object",
+              description: "Current values of the fields",
+              additionalProperties: { type: "string" }
+            }
+          },
+          required: ["message", "fieldLabels", "currentValues"]
+        }
+      }
+    ];
+
+    // Register tools in ListToolsRequestSchema
+    this.mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
+      tools
     }));
 
-    // CallTool handler: dispatches calls to the appropriate tool
+    // CallTool handler: Handle both generate_suggestion and update_lesson_field
     this.mcp.setRequestHandler(CallToolRequestSchema, async (request) => {
-      switch (request.params.name) {
-        case "generate_suggestion": {
-          // Instead of direct "as GenerateSuggestionArgs", let's do a check
-          const rawArgs = request.params.arguments;
-          if (!this.isValidSuggestionArgs(rawArgs)) {
-            throw new McpError(ErrorCode.InvalidParams, "Invalid arguments for generate_suggestion");
-          }
-          const args = rawArgs as GenerateSuggestionArgs;
-          const prompt = this.createGeneratePrompt(args);
-          const suggestion = await this.provider.generateCompletion(prompt);
-          return {
-            content: [{ type: "text", text: suggestion }]
-          };
-        }
+      const toolName = request.params.name;
+      const rawArgs = request.params.arguments;
 
-        case "update_lesson_field": {
-          const rawArgs = request.params.arguments;
-          if (!this.isValidUpdateFieldArgs(rawArgs)) {
-            throw new McpError(ErrorCode.InvalidParams, "Invalid arguments for update_lesson_field");
+      try {
+        switch (toolName) {
+          case "generate_suggestion": {
+            if (!this.isValidSuggestionArgs(rawArgs)) {
+              throw new McpError(ErrorCode.InvalidParams, "Invalid arguments for generate_suggestion");
+            }
+            const prompt = this.createGeneratePrompt(rawArgs as GenerateSuggestionArgs);
+            const suggestion = await this.provider.generateCompletion(prompt);
+            return {
+              content: [{ type: "text", text: suggestion }]
+            };
           }
-          const args = rawArgs as UpdateLessonFieldArgs;
-          const prompt = this.createUpdatePrompt(args);
-          const response = await this.provider.generateCompletion(prompt);
-          return {
-            content: [{ type: "text", text: response }]
-          };
-        }
 
-        default:
-          throw new McpError(
-            ErrorCode.MethodNotFound,
-            `Unknown tool: ${request.params.name}`
-          );
+          case "update_lesson_field": {
+            if (!this.isValidUpdateFieldArgs(rawArgs)) {
+              throw new McpError(ErrorCode.InvalidParams, "Invalid arguments for update_lesson_field");
+            }
+            const prompt = this.createUpdatePrompt(rawArgs as UpdateLessonFieldArgs);
+            const response = await this.provider.generateCompletion(prompt);
+            const cleaned = this.cleanJsonResponse(response);
+            return {
+              content: [{ type: "text", text: cleaned }]
+            };
+          }
+
+          default:
+            throw new McpError(
+              ErrorCode.MethodNotFound,
+              `Unknown tool: ${toolName}`
+            );
+        }
+      } catch (error) {
+        logError("AIServer", `Error in ${toolName}:`, error);
+        throw new McpError(
+          ErrorCode.InternalError,
+          error instanceof Error ? error.message : "Failed to process request"
+        );
       }
     });
   }
@@ -240,125 +591,108 @@ class AIServer {
     return prompt;
   }
 
+
+  // Add this debug method
+private logCurrentValues(args: UpdateLessonFieldArgs) {
+  console.log('Current Values Debug:');
+  console.log('Raw currentValues:', args.currentValues);
+  console.log('Field Labels:', args.fieldLabels);
+  
+  // Show how values are mapped
+  Object.entries(args.fieldLabels).forEach(([key, label]) => {
+    console.log(`Field ${label} (${key}):`, args.currentValues?.[key] || '(ריק)');
+  });
+}
   /**
    * Builds the prompt for update_lesson_field.
    */
-  private createUpdatePrompt(args: UpdateLessonFieldArgs): string {
-    const fieldsInfo = Object.entries(args.fieldLabels)
-      .map(([key, label]) => `${key}: ${label}`)
-      .join("\n");
+  // Update createUpdatePrompt to use and check values properly
+private createUpdatePrompt(args: UpdateLessonFieldArgs): string {
+  // Debug log
+  this.logCurrentValues(args);
 
-    return `אתה עוזר המתמחה בעדכון שדות תכנית לימודים. המשתמש רוצה לעדכן שדה כלשהו.
-השדות הזמינים הם:
-${fieldsInfo}
+  // מיפוי השדות והערכים שלהם
+  const fieldsContext = Object.entries(args.fieldLabels)
+    .map(([key, label]) => {
+      const value = args.currentValues?.[key];
+      // בדיקה מפורטת של הערך
+      console.log(`Mapping field ${key}:`, { label, value });
+      return `${label}: ${value || '(ריק)'}`;
+    })
+    .join('\n');
 
-ההודעה מהמשתמש היא: "${args.message}"
+  // לוג את ההקשר המלא
+  console.log('Fields Context:', fieldsContext);
 
-זהה את השדה שהמשתמש רוצה לעדכן ואת הערך החדש המבוקש.
-החזר תשובה בפורמט JSON בלבד עם שני שדות:
-- fieldName: שם השדה לעדכון (אחד מהשדות ברשימה למעלה)
-- value: הערך החדש לשדה
+  const fieldsMapping = Object.entries(args.fieldLabels)
+    .map(([key, label]) => `"${label}": "${key}"`)
+    .join('\n');
 
-לדוגמה:
-{
-  "fieldName": "topic",
-  "value": "גנטיקה בעולם המודרני"
-}`;
+  return `אתה עוזר למורים לשפר את תוכן השיעור שלהם.
+
+[מיפוי שדות]
+${fieldsMapping}
+
+[מצב נוכחי של השדות]
+${fieldsContext}
+
+[בקשת המשתמש]
+${args.message}
+
+חובה להחזיר אך ורק מערך JSON בפורמט הבא (כולל המבנה המדויק של הסוגריים):
+
+[
+  {
+    "fieldToUpdate": "duration",
+    "userResponse": "הסבר על השינוי",
+    "newValue": "ערך מדויק"
   }
+]
 
+אם אתה משנה מספר שדות, צריך להיות בדיוק כך:
+
+[
+  {
+    "fieldToUpdate": "duration",
+    "userResponse": "הסבר על השינוי",
+    "newValue": "ערך מדויק"
+  },
+  {
+    "fieldToUpdate": "gradeLevel",
+    "userResponse": "הסבר על השינוי",
+    "newValue": "ערך מדויק"
+  }
+]
+
+חובה:
+1. השתמש רק במפתחות הטכניים שמופיעים במיפוי למעלה (כמו "duration", לא "זמן כולל")
+2. תמיד תחזיר מערך שמתחיל ב-[ ומסתיים ב-], גם אם יש רק פריט אחד
+3. וודא שהפסיקים והרווחים בדיוק כמו בדוגמה (2 רווחים להזחה)
+4. אסור להוסיף טקסט מחוץ ל-JSON
+
+דוגמה לתשובה טובה כאשר מעדכנים מספר שדות:
+[
+  {
+    "fieldToUpdate": "duration",
+    "userResponse": "קבעתי את משך היחידה ל-6 שעות, שיאפשרו סקירה מקיפה של הנושא עם זמן לדיונים ותרגול.",
+    "newValue": "6 שעות"
+  },
+  {
+    "fieldToUpdate": "gradeLevel",
+    "userResponse": "בחרתי בכיתות ט' כקהל היעד, כיוון שיש להם את הבסיס המדעי הנדרש והבשלות לדון בנושא.",
+    "newValue": "כיתה ט'"
+  }
+]
+  
+  חשוב: 
+  - הערך של "newValue" חייב להיות טקסט ולא מערך של טקסטים"
+  - הערך ב-newValue חייב להיות הערך הסופי והמלא, לא תבנית
+  - אל תשתמש בסימני [] או תבניות למילוי
+  - תן ערך מוחלט ומלא שמתאים לשדה`;
+  }
   /**
    * Handle incoming HTTP requests, bridging them to the same logic as the MCP calls.
    */
-  async handleHttpRequest(request: Request): Promise<Response> {
-    if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: createCorsHeaders() });
-    }
-
-    if (request.method !== "POST") {
-      return new Response("Method not allowed", {
-        status: 405,
-        headers: createCorsHeaders()
-      });
-    }
-
-    try {
-      const body = await request.json();
-      // We expect JSON-RPC style calls with "method" and "params"
-      if (body.method !== "call_tool") {
-        throw new Error("Unsupported method");
-      }
-
-      // We'll do the same approach as in the MCP handlers
-      switch (body.params.name) {
-        case "generate_suggestion": {
-          const rawArgs = body.params.arguments;
-          if (!this.isValidSuggestionArgs(rawArgs)) {
-            throw new Error("Invalid arguments for generate_suggestion");
-          }
-          const args = rawArgs as GenerateSuggestionArgs;
-
-          const prompt = this.createGeneratePrompt(args);
-          const suggestion = await this.provider.generateCompletion(prompt);
-          return new Response(
-            JSON.stringify({
-              jsonrpc: "2.0",
-              id: body.id,
-              result: {
-                content: [{ type: "text", text: suggestion }]
-              }
-            }),
-            {
-              status: 200,
-              headers: createCorsHeaders()
-            }
-          );
-        }
-
-        case "update_lesson_field": {
-          const rawArgs = body.params.arguments;
-          if (!this.isValidUpdateFieldArgs(rawArgs)) {
-            throw new Error("Invalid arguments for update_lesson_field");
-          }
-          const args = rawArgs as UpdateLessonFieldArgs;
-
-          const prompt = this.createUpdatePrompt(args);
-          const response = await this.provider.generateCompletion(prompt);
-          return new Response(
-            JSON.stringify({
-              jsonrpc: "2.0",
-              id: body.id,
-              result: {
-                content: [{ type: "text", text: response }]
-              }
-            }),
-            {
-              status: 200,
-              headers: createCorsHeaders()
-            }
-          );
-        }
-
-        default:
-          throw new Error("Unsupported tool");
-      }
-    } catch (error) {
-      logError("AIServer", "Request failed:", error);
-      return new Response(
-        JSON.stringify({
-          jsonrpc: "2.0",
-          id: null,
-          error: {
-            code: -32603,
-            message: error instanceof Error ? error.message : "Internal server error"
-          }
-        }),
-        {
-          status: 500,
-          headers: createCorsHeaders()
-        }
-      );
-    }
-  }
 }
 
 /**
@@ -453,26 +787,121 @@ async function startServer() {
   const PORT = 8000;
   console.log(`AI MCP server running on http://localhost:${PORT}`);
 
+// In openai-server.ts
+
+// Update the serve function call to include CORS headers in the serve options
   await serve(async (req: Request) => {
-    try {
-      const url = new URL(req.url);
-      // We'll only handle requests at /mcp
-      if (url.pathname === "/mcp") {
-        return await aiServer.handleHttpRequest(req);
-      } else {
-        return new Response(null, {
-          status: 404,
-          headers: createCorsHeaders()
-        });
-      }
-    } catch (error) {
-      logError("Server error:", error);
+    // Handle CORS preflight
+    if (req.method === "OPTIONS") {
       return new Response(null, {
-        status: 500,
-        headers: createCorsHeaders()
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Max-Age": "86400",
+        },
       });
     }
-  }, { port: PORT });
+
+    try {
+      const url = new URL(req.url);
+      if (url.pathname === "/mcp") {
+        const response = await aiServer.handleHttpRequest(req);
+        
+        // Ensure CORS headers are present in all responses
+        const corsHeaders = {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Content-Type": "application/json",
+        };
+
+        const responseText = await response.text();
+        
+        try {
+          // Verify JSON is valid
+          JSON.parse(responseText);
+          return new Response(responseText, {
+            status: response.status,
+            headers: corsHeaders
+          });
+        } catch (e) {
+          console.error("Invalid JSON response:", responseText);
+          return new Response(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              error: {
+                code: -32603,
+                message: "Server returned invalid JSON response"
+              }
+            }),
+            { 
+              status: 500, 
+              headers: corsHeaders 
+            }
+          );
+        }
+      } else {
+        return new Response(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            error: {
+              code: -32601,
+              message: "Endpoint not found"
+            }
+          }),
+          {
+            status: 404,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+              "Access-Control-Allow-Headers": "Content-Type, Authorization",
+              "Content-Type": "application/json",
+            }
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Server error:", error);
+      return new Response(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: {
+            code: -32603,
+            message: "Critical server error"
+          }
+        }),
+        {
+          status: 500,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Content-Type": "application/json",
+          }
+        }
+      );
+    }
+  }, { 
+    port: PORT,
+    // Add CORS headers to all responses by default
+    onError: (error) => {
+      console.error("Server error:", error);
+      return new Response(
+        JSON.stringify({ error: "Internal Server Error" }),
+        {
+          status: 500,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Content-Type": "application/json",
+          }
+        }
+      );
+    }
+  });
 }
 
 // Start the server.

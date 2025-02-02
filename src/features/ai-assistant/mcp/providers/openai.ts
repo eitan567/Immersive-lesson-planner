@@ -27,21 +27,21 @@ export class OpenAIProvider implements AIProvider {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant with expertise in education and lesson planning. Respond in Hebrew.'
+          content: 'You are a JSON-only API that must return valid JSON responses in Hebrew. Never include any text outside the JSON structure. Ensure all strings are properly escaped and encoded.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 500
     };
 
     try {
       logRequest('OpenAI', requestBody);
 
-      const response = await makeRequest('https://api.openai.com/v1/chat/completions', {
+      const apiResponse = await makeRequest('https://api.openai.com/v1/chat/completions', {
         body: requestBody,
         headers: {
           'Authorization': `Bearer ${this.apiKey}`
@@ -49,16 +49,46 @@ export class OpenAIProvider implements AIProvider {
         timeout: this.timeout
       });
 
-      if (!response.ok) {
-        const error = await response.json();
+      if (!apiResponse.ok) {
+        const error = await apiResponse.json();
         logError('OpenAI API error:', error);
         throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
       }
 
-      const data = await response.json();
+      const data = await apiResponse.json();
       logResponse('OpenAI', data);
 
-      return data.choices?.[0]?.message?.content || '';
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) {
+        logError('OpenAI error:', 'Empty response content');
+        throw new Error('Empty response from OpenAI');
+      }
+
+      logDebug('OpenAI raw response:', content);
+
+      // Try to parse and re-stringify to ensure valid JSON
+      try {
+        const trimmedContent = content.toString().trim();
+        logDebug('OpenAI trimmed content:', trimmedContent);
+        
+        const parsed = JSON.parse(trimmedContent);
+        logDebug('OpenAI parsed response:', parsed);
+
+        // Validate required fields
+        if (!parsed.fieldName || !parsed.value) {
+          logError('OpenAI validation error:', 'Missing required fields');
+          throw new Error('תשובת המערכת חסרה שדות חובה');
+        }
+
+        const formatted = JSON.stringify(parsed);
+        logDebug('OpenAI formatted response:', formatted);
+        
+        return formatted;
+      } catch (e) {
+        logError('OpenAI JSON parsing error:', e);
+        logError('OpenAI problematic content:', content);
+        throw new Error('Invalid JSON response from AI');
+      }
     } catch (error) {
       logError('OpenAI completion error:', error);
       throw error;

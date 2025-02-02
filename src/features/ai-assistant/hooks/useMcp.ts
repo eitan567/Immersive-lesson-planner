@@ -37,19 +37,30 @@ export async function useMcpTool<T = McpToolResult>(
       body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      throw new Error(`MCP request failed: ${response.statusText}`);
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Expected JSON response from server');
     }
 
     const result = await response.json();
     
+    // Check for JSON-RPC error
     if (result.error) {
-      throw new Error(result.error.message || 'Unknown MCP error');
+      throw new Error(result.error.message || 'Unknown error occurred');
+    }
+
+    // Validate response structure
+    if (!result.result || !Array.isArray(result.result.content)) {
+      throw new Error('Invalid response format from server');
     }
 
     return result.result as T;
   } catch (error) {
     console.error('MCP tool error:', error);
-    return { error: error instanceof Error ? error.message : 'Unknown error' };
+    return { 
+      error: error instanceof Error 
+        ? error.message 
+        : 'An unexpected error occurred'
+    };
   }
 }

@@ -20,7 +20,7 @@ type BasicInfoFormProps = {
 
 export const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoFormProps) => {
   const handleChange = (field: keyof LessonPlan) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { currentTarget: { value: string } }
   ) => {
     handleBasicInfoChange(field, e.currentTarget.value);
   };

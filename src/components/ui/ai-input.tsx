@@ -7,11 +7,13 @@ import { useMcpTool } from '../../features/ai-assistant/hooks/useMcp.ts';
 import { SparklesIcon, XMarkIcon, PaperAirplaneIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { Textarea } from "./textarea.tsx";
 
-interface AIInputProps extends React.ComponentProps<"input"> {
+interface AIInputProps<T extends string = string> extends Omit<React.ComponentProps<"input">, "onChange"> {
   context: string;
   fieldType?: 'topic' | 'content' | 'goals' | 'duration' | 'activity';
   aiOn?: boolean;
   onSave?: () => Promise<void>;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement> & { currentTarget: { value: string } }) => void;
+  value?: string;
 }
 
 const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(

@@ -8,4 +8,6 @@ export interface GenerateSuggestionArgs {
 export interface UpdateLessonFieldArgs {
   message: string;
   fieldLabels: Record<string, string>;
+  rephrase?: boolean;
+  currentValues?: Record<string, string>;
 }

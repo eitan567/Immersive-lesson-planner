@@ -12,6 +12,7 @@ interface LayoutProps {
     lessonTitle?: string;
     totalSteps: number;
     onUpdateField: (fieldName: string, value: string) => Promise<void>;
+    currentValues: Record<string, string>;
   };
 }
 

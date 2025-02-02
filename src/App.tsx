@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from './components/ui/card.tsx';
 import './index.css';
 
@@ -13,9 +13,8 @@ import type { LessonPlan, LessonSection } from './features/lesson-planner/types.
 import { Layout } from './features/common/components/Layout.tsx';
 import { usePreventPageReset } from './hooks/usePreventPageReset.ts';
 
+// בתוך הקומפוננטה
 const MainContent = React.memo(() => {
-  usePreventPageReset();
-  
   const { user, loading: authLoading } = useAuth();
   const {
     currentStep,
@@ -33,6 +32,10 @@ const MainContent = React.memo(() => {
     saveCurrentPlan,
     removeSection
   } = useLessonPlanState();
+
+  useEffect(() => {
+    console.log('MainContent lessonPlan:', lessonPlan);
+  }, [lessonPlan]);
 
   const handleSectionUpdate = React.useCallback((
     phase: 'opening' | 'main' | 'summary',
@@ -73,8 +76,17 @@ const MainContent = React.memo(() => {
     totalSteps: (lessonPlan?.sections?.opening?.length || 0) +
                 (lessonPlan?.sections?.main?.length || 0) +
                 (lessonPlan?.sections?.summary?.length || 0),
-    onUpdateField: handleFieldUpdate
-  }), [saveInProgress, lastSaved, lessonPlan?.basicInfo?.title, lessonPlan?.sections, handleFieldUpdate]);
+    onUpdateField: handleFieldUpdate,
+    currentValues: {
+      topic: lessonPlan?.topic || '',
+      duration: lessonPlan?.duration || '',
+      gradeLevel: lessonPlan?.gradeLevel || '',
+      priorKnowledge: lessonPlan?.priorKnowledge || '',
+      position: lessonPlan?.position || '',
+      contentGoals: lessonPlan?.contentGoals || '',
+      skillGoals: lessonPlan?.skillGoals || ''
+    }
+  }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate]);
 
   // Show loading spinner while auth is initializing
   if (authLoading) {

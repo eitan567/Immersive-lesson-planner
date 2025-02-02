@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "../../../components/ui/button.tsx";
 import { Input } from "../../../components/ui/input.tsx";
 import { Card } from "../../../components/ui/card.tsx";
 import { useMcpTool } from '../../ai-assistant/hooks/useMcp.ts';
-import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon} from '@heroicons/react/24/outline';
+import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 interface Message {
   text: string;
@@ -13,6 +13,7 @@ interface Message {
 
 interface LessonFieldChatBoxProps {
   onUpdateField: (fieldName: string, value: string) => Promise<void>;
+  currentValues: Record<string, string>;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -26,85 +27,78 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
-  onUpdateField
+  onUpdateField,
+  currentValues
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // הוסף לוג לבדיקת הערכים בעת טעינת הקומפוננטה
+  useEffect(() => {
+    console.log('LessonFieldChatBox mounted with currentValues:', currentValues);
+  }, [currentValues]);
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim()) return;
 
-    const newUserMessage: Message = {
-      text: currentMessage,
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, newUserMessage]);
-    setCurrentMessage('');
-    setLoading(true);
-    setError(null);
-
     try {
-      const result = await useMcpTool({
+      setLoading(true);
+
+      // הוסף לוג לפני שליחת הבקשה
+      console.log('Sending request with currentValues:', currentValues);
+      
+      setMessages(prev => [...prev, {
+        text: currentMessage,
+        sender: 'user',
+        timestamp: new Date()
+      }]);
+
+      const response = await useMcpTool({
         serverName: 'ai-server',
         toolName: 'update_lesson_field',
         arguments: {
           message: currentMessage,
-          fieldLabels: FIELD_LABELS
+          fieldLabels: FIELD_LABELS,
+          currentValues: currentValues,
+          rephrase: currentMessage.includes('נסח') || currentMessage.includes('שפר')
         }
       });
 
-      if ('error' in result) {
-        throw new Error(result.error);
+      if ('error' in response) {
+        throw new Error(response.error);
       }
 
-      const aiResponse = result.content[0]?.text;
-      if (!aiResponse) {
-        throw new Error('לא התקבלה תשובה מהמערכת');
-      }
+      const parsed = JSON.parse(response.content[0].text);
+      
+      // Handle both single object and array responses
+      const updates = Array.isArray(parsed) ? parsed : [parsed];
+      
+      for (const update of updates) {
+        if (!update.fieldToUpdate || !update.userResponse || !update.newValue) {
+          throw new Error('תשובת המערכת חסרה שדות נדרשים');
+        }
 
-      // Parse the AI response to get field name and value
-      try {
-        // Extract JSON content using regex to find object between curly braces
-        const jsonMatch = aiResponse.match(/({[\s\S]*?})/);
-        if (!jsonMatch) {
-          throw new Error('לא נמצא תוכן JSON בתשובה');
-        }
-        const responseData = JSON.parse(jsonMatch[1]);
-        if (responseData.fieldName && responseData.value) {
-          await onUpdateField(responseData.fieldName, responseData.value);
-          
-          // Add success message
-          const successMessage: Message = {
-            text: `עודכן השדה "${FIELD_LABELS[responseData.fieldName] || responseData.fieldName}" לערך החדש`,
-            sender: 'ai',
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, successMessage]);
-        }
-      } catch (e) {
-        console.error('Failed to parse AI response:', e);
-        throw new Error('תשובת המערכת לא תקינה');
+        setMessages(prev => [...prev, {
+          text: update.userResponse,
+          sender: 'ai',
+          timestamp: new Date()
+        }]);
+
+        await onUpdateField(update.fieldToUpdate, update.newValue);
       }
 
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'שגיאה בשליחת ההודעה';
-      setError(errorMsg);
-      
-      // Add error message to chat
-      const errorMessage: Message = {
-        text: errorMsg,
+      console.error('Failed to process request:', error);
+      setMessages(prev => [...prev, {
+        text: error instanceof Error ? error.message : 'מצטער, נתקלתי בבעיה בעיבוד הבקשה. אנא נסה שנית.',
         sender: 'ai',
         timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      
+      }]);
     } finally {
       setLoading(false);
+      setCurrentMessage('');
     }
   };
 
@@ -137,9 +131,15 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
             <div className="h-[calc(100vh-380px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-gray-50 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
-                  אפשר לשאול שאלות או לבקש שינויים בפרטי השיעור.
+                  אפשר לבקש עזרה בניסוח, שיפור או שינוי של פרטי השיעור.
                   <br />
-                  לדוגמה: "שנה את נושא היחידה ל'אנרגיה מתחדשת'"
+                  לדוגמה:
+                  <br />
+                  "שנה את נושא היחידה ל'אנרגיה מתחדשת'"
+                  <br />
+                  "תעזור לי לנסח טוב יותר את מטרות התוכן"
+                  <br />
+                  "תציע לי רעיונות לשיפור הידע הקודם הנדרש"
                 </div>
               ) : (
                 messages.map((message, index) => (
@@ -182,7 +182,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="שאל שאלה לגבי פרטי השיעור..."
+                placeholder="בקש עזרה בניסוח, שיפור או שינוי פרטי השיעור..."
                 className="flex-1"
                 dir="rtl"
                 disabled={loading}
