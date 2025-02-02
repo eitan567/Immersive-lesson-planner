@@ -59,9 +59,9 @@ const LessonPhase = ({
   onSave
 }: LessonPhaseProps) => {
   return (
-    <Card className="mt-4 border-gray-200">
+    <Card className="mt-2 border-gray-200">
       <CardContent>
-        <h3 className="text-[1rem] font-normal mb-2 text-[#540ba9]">{title}</h3>
+        {/* <h3 className="text-[1rem] font-normal mb-2 text-[#540ba9]">{title}</h3> */}
         <div className="space-y-4">
           {sections.map((section, index) => (
             <Card key={index} className="p-4 border-gray-200 bg-white relative">                           

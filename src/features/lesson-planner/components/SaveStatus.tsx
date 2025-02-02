@@ -16,15 +16,17 @@ export const SaveStatus = ({ onSave, saving, lastSaved, className = '' ,savingTe
       <Button 
         onClick={onSave}
         disabled={saving}
-        className="text-[#681bc2] border border-[#681bc2]"
+        className="text-[#681bc2] border border-[#681bc2] h-[50px] flex flex-col items-center gap-1"
       >
         {saving ? savingText : buttonText}
-      </Button>
-      {lastSaved && (
-        <span className="text-sm text-gray-500">
+        <br/> 
+        {lastSaved && (
+        <span className="text-xs">
           נשמר לאחרונה: {lastSaved.toLocaleTimeString()}
         </span>
       )}
+      </Button>
+      
     </div>
   );
 };

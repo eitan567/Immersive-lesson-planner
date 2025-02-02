@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import BasicInfoForm from './BasicInfoForm.tsx';
+import { BasicInfoForm } from './BasicInfoForm.tsx';
 import { LessonBuilder } from './LessonBuilder.tsx';
 import LessonPlanPreview from './LessonPlanPreview.tsx';
-import NavigationControls from './NavigationControls.tsx';
+import { NavigationControls } from './NavigationControls.tsx';
 import { SaveStatus } from './SaveStatus.tsx';
 import type { LessonPlan, LessonSection } from '../types.ts';
 
@@ -78,7 +78,7 @@ export const LessonContent = ({
             onSave={saveCurrentPlan}
             saving={saveInProgress}
             lastSaved={lastSaved}
-            className="mt-4 flex justify-end absolute top-3 left-8"
+            className="mt-2 flex justify-end absolute top-3 left-8"
           />
           <BasicInfoForm
             lessonPlan={lessonPlan}
@@ -94,7 +94,7 @@ export const LessonContent = ({
             onSave={saveCurrentPlan}
             saving={saveInProgress}
             lastSaved={lastSaved}
-            className="mt-4 flex justify-end absolute top-0 left-8"
+            className="mt-2 flex justify-end absolute top-3 left-8"
           />
           <LessonBuilder
             sections={lessonPlan.sections}

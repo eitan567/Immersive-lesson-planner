@@ -22,7 +22,7 @@ export const Navbar = React.memo(({ user }: NavbarProps) => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-[72px] z-50
-      bg-white/10 
+      bg-[#e3cbdc]
       backdrop-filter 
       backdrop-blur-lg       
       backdrop-opacity-80
@@ -42,7 +42,7 @@ export const Navbar = React.memo(({ user }: NavbarProps) => {
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
           <img src="/logo.svg" alt="Logo" className="h-8 w-8 mr-3" />
-          <span className="text-xl font-semibold text-[#28026f]">מתכנן שיעורים לחדר אימרסיבי</span>
+          <span className="text-xl font-semibold text-[#28026fa6]">מתכנן שיעורים לחדר אימרסיבי</span>
         </div>
       </div>      
 

@@ -14,7 +14,7 @@ interface NavigationControlsProps {
   saving?: boolean;
 }
 
-const NavigationControls = ({ 
+export const NavigationControls = ({ 
   currentStep, 
   onPrevious, 
   onNext, 

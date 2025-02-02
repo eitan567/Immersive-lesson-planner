@@ -18,7 +18,7 @@ type BasicInfoFormProps = {
   onSave?: () => Promise<void>;
 };
 
-const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoFormProps) => {
+export const BasicInfoForm = ({ lessonPlan, handleBasicInfoChange, onSave }: BasicInfoFormProps) => {
   const handleChange = (field: keyof LessonPlan) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {

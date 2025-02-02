@@ -7,7 +7,12 @@ import type { Database } from './database.types.ts';
 const supabaseUrl = 'https://aaxajecvlxekgknbfqwh.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFheGFqZWN2bHhla2drbmJmcXdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgwNzExMjgsImV4cCI6MjA1MzY0NzEyOH0.ztoOW4fKYirHuKJ7XkAIWrRN2kLAJd1S02gfKb0RUCI';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Reuse a single Supabase client instance across the app
+if (!(globalThis as any).__supabase) {
+  (globalThis as any).__supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+}
+
+export const supabase = (globalThis as any).__supabase
 
 // Type helpers
 export type DbResult<T> = T extends PromiseLike<infer U> ? U : never;

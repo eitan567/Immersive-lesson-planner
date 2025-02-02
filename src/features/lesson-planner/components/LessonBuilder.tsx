@@ -24,25 +24,28 @@ export const LessonBuilder = ({
   return (
     <div>
       <h1 className="text-[1.2rem] font-semibold text-[#540ba9]">בניית השיעור</h1>
+      <h3 className="text-[1rem] font-normal my-2 text-[#540ba9]">פתיחה</h3>
       <LessonPhase
         phase="opening"
-        title="פתיחה"
+        title=""
         sections={sections.opening}
         onAddSection={onAddSection}
         onUpdateSection={onUpdateSection}
         onRemoveSection={onRemoveSection}
       />
+      <h3 className="text-[1rem] font-normal my-2 text-[#540ba9]">גוף השיעור</h3>
       <LessonPhase
         phase="main"
-        title="גוף השיעור"
+        title=""
         sections={sections.main}
         onAddSection={onAddSection}
         onUpdateSection={onUpdateSection}
         onRemoveSection={onRemoveSection}
       />
+      <h3 className="text-[1rem] font-normal my-2 text-[#540ba9]">סיכום</h3>
       <LessonPhase
         phase="summary"
-        title="סיכום"
+        title=""
         sections={sections.summary}
         onAddSection={onAddSection}
         onUpdateSection={onUpdateSection}

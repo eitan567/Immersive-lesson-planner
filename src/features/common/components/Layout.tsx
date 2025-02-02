@@ -26,7 +26,7 @@ export const Layout = React.memo(({ children, user, sidebarProps }: LayoutProps)
       <div className="flex-1 flex flex-row-reverse mt-[72px] overflow-hidden">
         <div className="relative flex">
           {/* Sidebar Container */}
-          <div className={`border-r border-gray-300 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-80' : 'w-0'} overflow-hidden`}>
+          <div className={`bg-[#85003f05] border-r border-gray-300 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-80' : 'w-0'} overflow-hidden`}>
             <Sidebar {...sidebarProps} />
           </div>
           
