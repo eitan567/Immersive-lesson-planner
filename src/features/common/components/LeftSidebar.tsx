@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Card, CardContent } from '../../../components/ui/card.tsx';
-import { SaveProgressAlert } from '../components/SaveProgressAlert.tsx';
+// import { SaveProgressAlert } from './SaveProgressAlert.tsx';
 import { LessonFieldChatBox } from '../../lesson-planner/components/LessonFieldChatBox.tsx';
 
-interface SidebarProps {
+interface LeftSidebarProps {
   saveInProgress: boolean;
   lastSaved: Date | null;
   lessonTitle?: string;
@@ -12,9 +12,9 @@ interface SidebarProps {
   currentValues: Record<string, string>;  // הוסף את זה לProps
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  saveInProgress,
-  lastSaved,
+const LeftSidebar: React.FC<LeftSidebarProps> = ({
+  // saveInProgress,
+  // lastSaved,
   lessonTitle,
   totalSteps,
   onUpdateField,
@@ -49,4 +49,4 @@ const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-export { Sidebar };
+export { LeftSidebar };
