@@ -21,10 +21,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="w-80 border-r border-slate-200 bg-white shrink-0">
       <div className="fixed w-80 p-6 space-y-6">
-        <SaveProgressAlert
+        {/* <SaveProgressAlert
           saveInProgress={saveInProgress}
           lastSaved={lastSaved}
-        />
+        /> */}
         <Card>
           <CardContent className="p-4 space-y-2">
             <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>

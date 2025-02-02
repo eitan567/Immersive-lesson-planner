@@ -134,7 +134,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
         {isOpen && (
           <div className="space-y-4">
-            <div className="h-[calc(100vh-470px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-gray-50 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
+            <div className="h-[calc(100vh-380px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-gray-50 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
                   אפשר לשאול שאלות או לבקש שינויים בפרטי השיעור.
