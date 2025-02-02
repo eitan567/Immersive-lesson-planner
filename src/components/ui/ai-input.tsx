@@ -10,11 +10,12 @@ import { Textarea } from "./textarea.tsx";
 interface AIInputProps extends React.ComponentProps<"input"> {
   context: string;
   fieldType?: 'topic' | 'content' | 'goals' | 'duration' | 'activity';
+  aiOn?: boolean;
   onSave?: () => Promise<void>;
 }
 
 const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
-  ({ className, type, context, fieldType = 'content', onSave, value, onChange, ...props }, ref) => {
+  ({ className, type, context, fieldType = 'content', aiOn = true , onSave, value, onChange, ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isChatMode, setIsChatMode] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -135,6 +136,8 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
             onChange={onChange}
             {...props}
           />
+          {aiOn && (
+            <>
             <button
               onClick={() => generateSuggestion()}
               className="flex left-8 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
@@ -149,8 +152,10 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
             >
               <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800" />
             </button>
+           </>           
+          )}
         </div>
-
+         
         {isOpen && (
           <div className={cn(
             "p-6 z-[9999] bg-white rounded-lg shadow-lg border border-gray-200",

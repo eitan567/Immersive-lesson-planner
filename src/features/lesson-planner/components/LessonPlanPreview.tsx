@@ -29,6 +29,7 @@ const LessonPlanPreview = ({ content: initialContent, onContentChange }: LessonP
       </CardHeader>
       <CardContent className="bg-white">
         <AITextarea
+          aiOn={false}
           value={content}
           onChange={handleContentChange}
           dir="rtl"

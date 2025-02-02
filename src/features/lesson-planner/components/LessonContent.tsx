@@ -74,33 +74,33 @@ export const LessonContent = ({
     <div className="space-y-4">
       {currentStep === 1 && (
         <>
-          <BasicInfoForm
-            lessonPlan={lessonPlan}
-            handleBasicInfoChange={handleBasicInfoChange}
-            onSave={saveCurrentPlan}
-          />
           <SaveStatus
             onSave={saveCurrentPlan}
             saving={saveInProgress}
             lastSaved={lastSaved}
-            className="mt-4 flex justify-end"
+            className="mt-4 flex justify-end absolute top-3 left-8"
+          />
+          <BasicInfoForm
+            lessonPlan={lessonPlan}
+            handleBasicInfoChange={handleBasicInfoChange}
+            onSave={saveCurrentPlan}
           />
         </>
       )}
       
       {currentStep === 2 && (
         <>
+          <SaveStatus
+            onSave={saveCurrentPlan}
+            saving={saveInProgress}
+            lastSaved={lastSaved}
+            className="mt-4 flex justify-end absolute top-0 left-8"
+          />
           <LessonBuilder
             sections={lessonPlan.sections}
             onAddSection={addSection}
             onUpdateSection={handleSectionUpdate}
             onRemoveSection={removeSection}
-          />
-          <SaveStatus
-            onSave={saveCurrentPlan}
-            saving={saveInProgress}
-            lastSaved={lastSaved}
-            className="mt-4 flex justify-end"
           />
         </>
       )}
@@ -119,6 +119,7 @@ export const LessonContent = ({
         onExport={currentStep === 3 ? handleExportWrapper : undefined}
         saving={saveInProgress}
       />
+      
     </div>
   );
 };

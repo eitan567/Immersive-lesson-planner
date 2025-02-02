@@ -10,11 +10,12 @@ import { SparklesIcon, XMarkIcon, ChatBubbleLeftRightIcon, PaperAirplaneIcon } f
 interface AITextareaProps extends React.ComponentProps<"textarea"> {
   context: string;
   fieldType?: 'topic' | 'content' | 'goals' | 'duration' | 'activity';
+  aiOn?: boolean;
   onSave?: () => Promise<void>;
 }
 
 const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
-  ({ className, context, fieldType = 'content', onSave, value, onChange, ...props }, ref) => {
+  ({ className, context, fieldType = 'content', aiOn = true ,onSave, value, onChange, ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isChatMode, setIsChatMode] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -134,6 +135,8 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
            onChange={onChange}
            {...props}
          />
+         {aiOn && (
+          <>
            <button
              onClick={() => generateSuggestion()}
             className="flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
@@ -148,6 +151,8 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
            >
              <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800" />
            </button>
+           </>           
+          )}
         </div>
 
         {isOpen && (
