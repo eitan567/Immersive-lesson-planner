@@ -27,13 +27,13 @@ const LessonPlanPreview = ({ content: initialContent, onContentChange }: LessonP
           <h1 className="text-[1.2rem] font-semibold text-[#540ba9]">תצוגה מקדימה של תכנית השיעור</h1>
         </CardTitle>
       </CardHeader>
-      <CardContent className="bg-white">
+      <CardContent className="bg-white h-[calc(100vh-380px)] min-h-[380px]">
         <AITextarea
           aiOn={false}
           value={content}
           onChange={handleContentChange}
           dir="rtl"
-          className="w-full min-h-[550px] text-right font-['Varela_Round'] text-[1.05rem] leading-7 
+          className="w-full min-h-[320px] h-[calc(100vh-450px)] text-right font-['Varela_Round'] text-[1.05rem] leading-7 
             bg-gray-50 p-6 rounded-lg border border-gray-100 
             text-gray-700 resize-y
             focus:outline-none focus:ring-1 focus:ring-blue-200 focus:border-blue-200

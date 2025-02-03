@@ -90,18 +90,24 @@ label {
   font-family: Assistant, sans-serif;
 }
 
-button:has(svg){
+/* button:has(svg){
   background-color:#ffffff !important;
 }
 
 button:not(:has(svg)){
   background: #540ba9 !important;
   color: #ffffff !important;
+} */
+
+.aibutton{
+  color: #540ba9;
 }
 
-svg{
-  color: #540ba9 !important;
+.aibutton:hover{
+  color: #8b57c8;
 }
+
+
 
 @media (min-width: 1024px) {
   .lg\:text-5xl {

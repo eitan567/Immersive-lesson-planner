@@ -69,7 +69,26 @@ const MainContent = React.memo(() => {
     }
   }, [handleBasicInfoChange, saveCurrentPlan, lessonPlan]);
 
-  const sidebarProps = React.useMemo(() => ({
+  const rightSidebarProps = React.useMemo(() => ({
+    saveInProgress,
+    lastSaved,
+    lessonTitle: lessonPlan?.basicInfo?.title || '',
+    totalSteps: (lessonPlan?.sections?.opening?.length || 0) +
+                (lessonPlan?.sections?.main?.length || 0) +
+                (lessonPlan?.sections?.summary?.length || 0),
+    onUpdateField: handleFieldUpdate,
+    currentValues: {
+      topic: lessonPlan?.topic || '',
+      duration: lessonPlan?.duration || '',
+      gradeLevel: lessonPlan?.gradeLevel || '',
+      priorKnowledge: lessonPlan?.priorKnowledge || '',
+      position: lessonPlan?.position || '',
+      contentGoals: lessonPlan?.contentGoals || '',
+      skillGoals: lessonPlan?.skillGoals || ''
+    }
+  }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate]);
+
+  const leftSidebarProps = React.useMemo(() => ({
     saveInProgress,
     lastSaved,
     lessonTitle: lessonPlan?.basicInfo?.title || '',
@@ -112,12 +131,12 @@ const MainContent = React.memo(() => {
   }
 
   return (
-    <Layout user={user} sidebarProps={sidebarProps}>
+    <Layout user={user} rightSidebarProps={rightSidebarProps} leftSidebarProps={leftSidebarProps}>
       <div className="p-6 min-h-full">
         <div dir="rtl" className="mx-auto space-y-6">
           {error && <ErrorAlert message={error} />}
           <Card>
-            <CardContent>
+            <CardContent className='h-[calc(100vh-130px)] min-h-[530px]'>
               {lessonPlan && (
                 <LessonContent
                   currentStep={currentStep}
@@ -132,6 +151,7 @@ const MainContent = React.memo(() => {
                   generateLessonPlanText={generateLessonPlanText}
                   saveCurrentPlan={saveCurrentPlan}
                   removeSection={removeSection}
+                  // className='min-h-[calc(100vh-130px)]'
                 />
               )}
             </CardContent>

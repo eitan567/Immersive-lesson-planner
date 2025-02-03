@@ -142,14 +142,14 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
             className="flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
              title="בקש הצעה לשיפור"
            >
-             <SparklesIcon className="h-5 w-5 text-blue-800" />
+             <SparklesIcon className="h-5 w-5 text-blue-800 aibutton hover:!text-[#8b57c8]" />
            </button>
            <button
              onClick={toggleChatMode}
              className="flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
              title="פתח שיחה"
            >
-             <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800" />
+             <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800 aibutton hover:!text-[#8b57c8]" />
            </button>
            </>           
           )}
@@ -157,10 +157,10 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
 
         {isOpen && (
           <div className={cn(
-            "p-6 z-[9999] bg-white rounded-lg shadow-lg border border-gray-200",
+            "p-6 z-[9999] bg-[#f9f6ff] rounded-lg shadow-lg border border-gray-200",
             isChatMode
               ? "fixed inset-x-[15%] top-[10%] bottom-[10%] w-[70%]"
-              : "p-4 top-[35px] left-[-13px] absolute w-[-webkit-fill-available] before:content-[''] before:absolute before:top-[-8px] before:left-[40px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform"
+              : "p-4 top-[35px] left-[-13px] absolute w-[-webkit-fill-available] before:content-[''] before:absolute before:top-[-8px] before:left-[40px] before:w-4 before:h-4 before:bg-[#f9f6ff] before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform"
           )}>
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-[1.2rem] font-normal text-[#540ba9]">
@@ -171,7 +171,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                   setIsOpen(false);
                   setIsChatMode(false);
                 }}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-1 rounded-full border border-solid border-[#ead9ff]"
               >
                 <XMarkIcon className="h-4 w-4 text-gray-500" />
               </button>
@@ -264,7 +264,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                        <Textarea
                          value={suggestion}
                          onChange={(e) => setSuggestion(e.currentTarget.value)}
-                         className="flex-1 min-h-[calc(100vh-250px)]"
+                         className="flex-1 min-h-[calc(100vh-250px)] bg-white"
                          placeholder="ההצעה תופיע כאן..."
                          dir="rtl"
                        />

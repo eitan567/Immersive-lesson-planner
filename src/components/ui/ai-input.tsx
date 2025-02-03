@@ -145,14 +145,14 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
               className="flex left-8 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
               title="בקש הצעה לשיפור"
             >
-              <SparklesIcon className="h-5 w-5 text-blue-800" />
+              <SparklesIcon className="h-5 w-5 text-blue-800 aibutton hover:!text-[#8b57c8]" />
             </button>
             <button
               onClick={toggleChatMode}
               className="flex left-0 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
               title="פתח שיחה"
             >
-              <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800" />
+              <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800 aibutton hover:!text-[#8b57c8]" />
             </button>
            </>           
           )}
@@ -160,10 +160,10 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
          
         {isOpen && (
           <div className={cn(
-            "p-6 z-[9999] bg-white rounded-lg shadow-lg border border-gray-200",
+            "p-6 z-[9999] bg-[#f9f6ff] rounded-lg shadow-lg border border-gray-200",
             isChatMode
               ? "fixed inset-x-[15%] top-[10%] bottom-[10%] w-[70%]"
-              : "p-4 left-[-8px] top-[45px] absolute w-[-webkit-fill-available] before:content-[''] before:absolute before:top-[-9px] before:left-[45px] before:w-4 before:h-4 before:bg-white before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform"
+              : "p-4 left-[-8px] top-[45px] absolute w-[-webkit-fill-available] before:content-[''] before:absolute before:top-[-9px] before:left-[45px] before:w-4 before:h-4 before:bg-[#f9f6ff] before:border-t before:border-l before:border-gray-200 before:rotate-45 before:transform"
           )}>
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-[1.2rem] font-normal text-[#540ba9]">
@@ -174,7 +174,7 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
                   setIsOpen(false);
                   setIsChatMode(false);
                 }}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-1 rounded-full border border-solid border-[#ead9ff]"
               >
                 <XMarkIcon className="h-4 w-4 text-gray-500" />
               </button>

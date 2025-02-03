@@ -4,9 +4,11 @@ import { LessonBuilder } from './LessonBuilder.tsx';
 import LessonPlanPreview from './LessonPlanPreview.tsx';
 import { NavigationControls } from './NavigationControls.tsx';
 import { SaveStatus } from './SaveStatus.tsx';
+import { cn } from "../../..//lib/utils.ts"
 import type { LessonPlan, LessonSection } from '../types.ts';
 
 interface LessonContentProps {
+  className?: string;
   currentStep: number;
   lessonPlan: LessonPlan;
   saveInProgress: boolean;
@@ -26,6 +28,7 @@ interface LessonContentProps {
 }
 
 export const LessonContent = ({
+  className,
   currentStep,
   lessonPlan,
   saveInProgress,
@@ -71,55 +74,58 @@ export const LessonContent = ({
   };
 
   return (
-    <div className="space-y-4">
-      {currentStep === 1 && (
-        <>
-          <SaveStatus
-            onSave={saveCurrentPlan}
-            saving={saveInProgress}
-            lastSaved={lastSaved}
-            className="mt-2 flex justify-end absolute top-3 left-8"
+    <div className={cn("relative h-full pb-16", className)}>
+      <div className="space-y-4">
+        {currentStep === 1 && (
+          <>
+            <SaveStatus
+              onSave={saveCurrentPlan}
+              saving={saveInProgress}
+              lastSaved={lastSaved}
+              className="mb-2 flex justify-end absolute top-0 left-0"
+            />
+            <BasicInfoForm
+              lessonPlan={lessonPlan}
+              handleBasicInfoChange={handleBasicInfoChange}
+              onSave={saveCurrentPlan}
+            />
+          </>
+        )}
+        
+        {currentStep === 2 && (
+          <>
+            <SaveStatus
+              onSave={saveCurrentPlan}
+              saving={saveInProgress}
+              lastSaved={lastSaved}
+              className="mb-2 flex justify-end absolute top-0 left-0"
+            />
+            <LessonBuilder
+              sections={lessonPlan.sections}
+              onAddSection={addSection}
+              onUpdateSection={handleSectionUpdate}
+              onRemoveSection={removeSection}
+            />
+          </>
+        )}
+        
+        {currentStep === 3 && (
+          <LessonPlanPreview 
+            content={editedContent} 
+            onContentChange={handleContentChange}
           />
-          <BasicInfoForm
-            lessonPlan={lessonPlan}
-            handleBasicInfoChange={handleBasicInfoChange}
-            onSave={saveCurrentPlan}
-          />
-        </>
-      )}
+        )}
+      </div>
       
-      {currentStep === 2 && (
-        <>
-          <SaveStatus
-            onSave={saveCurrentPlan}
-            saving={saveInProgress}
-            lastSaved={lastSaved}
-            className="mt-2 flex justify-end absolute top-3 left-8"
-          />
-          <LessonBuilder
-            sections={lessonPlan.sections}
-            onAddSection={addSection}
-            onUpdateSection={handleSectionUpdate}
-            onRemoveSection={removeSection}
-          />
-        </>
-      )}
-      
-      {currentStep === 3 && (
-        <LessonPlanPreview 
-          content={editedContent} 
-          onContentChange={handleContentChange}
+      <div className="absolute bottom-3 left-0 right-0">
+        <NavigationControls
+          currentStep={currentStep}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onExport={currentStep === 3 ? handleExportWrapper : undefined}
+          saving={saveInProgress}
         />
-      )}
-      
-      <NavigationControls
-        currentStep={currentStep}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
-        onExport={currentStep === 3 ? handleExportWrapper : undefined}
-        saving={saveInProgress}
-      />
-      
+      </div>
     </div>
   );
 };
