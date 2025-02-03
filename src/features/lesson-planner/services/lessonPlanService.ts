@@ -78,7 +78,15 @@ const toAppLessonPlan = (dbPlan: DbLessonPlan): LessonPlan => ({
   skillGoals: dbPlan.skill_goals || '',
   sections: validateLessonPlanSections(dbPlan.sections),
   created_at: dbPlan.created_at,
-  updated_at: dbPlan.updated_at
+  updated_at: dbPlan.updated_at,
+  basicInfo: {
+    title: dbPlan.topic,
+    duration: dbPlan.duration,
+    gradeLevel: dbPlan.grade_level,
+    priorKnowledge: dbPlan.prior_knowledge || '',
+    contentGoals: dbPlan.content_goals || '',
+    skillGoals: dbPlan.skill_goals || ''
+  }
 });
 
 // Convert application lesson plan to database format

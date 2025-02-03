@@ -146,7 +146,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
            </button>
            <button
              onClick={toggleChatMode}
-             className="flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
+             className="hover:!bg-[#681bc2] hover:!text-white flex pr-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
              title="פתח שיחה"
            >
              <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800 aibutton hover:!text-[#8b57c8]" />
@@ -273,7 +273,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                            variant="outline"
                            size="sm"
                            onClick={handleApply}
-                           className="text-[#681bc2] border border-[#681bc2]"
+                           className="text-[#681bc2] border border-[#681bc2] hover:!bg-[#681bc2] hover:!text-white"
                          >
                            אישור
                          </Button>
@@ -315,7 +315,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                          variant="outline"
                          size="sm"
                          onClick={toggleChatMode}
-                         className="text-[#681bc2] border border-[#681bc2]"
+                         className="hover:!bg-[#681bc2] hover:!text-white text-[#681bc2] border border-[#681bc2]"
                        >
                          {isChatMode ? 'סגור שיחה' : 'פתח שיחה'} 
                        </Button>
@@ -323,7 +323,7 @@ const AITextarea = React.forwardRef<HTMLTextAreaElement, AITextareaProps>(
                          variant="outline"
                          size="sm"
                          onClick={handleApply}
-                         className="text-[#681bc2] border border-[#681bc2]"
+                         className="text-[#681bc2] border border-[#681bc2] hover:!bg-[#681bc2] hover:!text-white"
                        >
                          אישור
                        </Button>

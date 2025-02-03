@@ -17,21 +17,27 @@ export interface LessonPlanSections {
 }
 
 export interface LessonPlan {
-  id?: string;
+  id: string;
   userId: string;
   topic: string;
-  duration: string;
-  basicInfo: {
-    title: string;
-  };
+  duration: number;
   gradeLevel: string;
   priorKnowledge: string;
-  position: string;
+  position: number;
   contentGoals: string;
   skillGoals: string;
   sections: LessonPlanSections;
-  created_at?: string;
-  updated_at?: string;
+  created_at: string;
+  updated_at: string;
+  basicInfo: {
+    title: string;
+    duration: number;
+    gradeLevel: string;
+    priorKnowledge: string;
+    contentGoals: string;
+    skillGoals: string;
+  };
+
 }
 
 export type LessonPhaseType = keyof LessonPlanSections;

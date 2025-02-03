@@ -38,7 +38,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   // הוסף לוג לבדיקת הערכים בעת טעינת הקומפוננטה
   useEffect(() => {
     console.log('LessonFieldChatBox mounted with currentValues:', currentValues);
-  }, [currentValues]);
+  }, []);
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim()) return;
@@ -111,7 +111,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
   return (
     <Card className="mt-4">
-      <div className="p-4">
+      <div className="p-4 bg-[#fff4fc] rounded-lg">
         <div className="flex justify-between items-center">
           <h3 className="font-medium text-slate-800 mb-1">שיחה על פרטי השיעור</h3>
           <button
@@ -128,7 +128,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
         {isOpen && (
           <div className="space-y-4">
-            <div className="h-[calc(100vh-380px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-gray-50 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
+            <div className="h-[calc(100vh-380px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
                   אפשר לבקש עזרה בניסוח, שיפור או שינוי של פרטי השיעור.
@@ -190,10 +190,10 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
               <Button
                 onClick={handleSendMessage}
                 disabled={loading || !currentMessage.trim()}
-                variant="outline"
                 size="icon"
+                className="border-none outline-none shadow-none"
               >
-                <PaperAirplaneIcon className="h-4 w-4" />
+                <PaperAirplaneIcon className="h-4 w-4 rotate-180 border-none outline-none shadow-none text-[#540ba9]" />
               </Button>
             </div>
           </div>

@@ -46,7 +46,7 @@ export const Layout = React.memo(({ children, user, rightSidebarProps, leftSideb
           {/* Toggle Button */}
           <button
             onClick={toggleLeftSidebar}
-            className="absolute -right-[0.20rem] top-0 -mr-4 z-10 flex items-center justify-center w-5 h-8 bg-[beige] rounded-l border border-slate-200 shadow-sm focus:outline-none"
+            className="absolute -right-[0.20rem] top-0 -mr-4 z-10 flex items-center justify-center w-5 h-8 bg-[#fff4fc] rounded-l border border-slate-200 shadow-sm focus:outline-none"
             aria-label={isLeftSidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             {isLeftSidebarOpen ? (
@@ -72,7 +72,7 @@ export const Layout = React.memo(({ children, user, rightSidebarProps, leftSideb
           {/* Toggle Button */}
           <button
             onClick={toggleRightSidebar}
-            className="absolute -left-[0.20rem] top-0 -ml-4 z-10 flex items-center justify-center w-5 h-8 bg-[beige] rounded-l border border-slate-200 shadow-sm focus:outline-none"
+            className="absolute -left-[0.20rem] top-0 -ml-4 z-10 flex items-center justify-center w-5 h-8 bg-[#fff4fc] rounded-l border border-slate-200 shadow-sm focus:outline-none"
             aria-label={isRightSidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             {isRightSidebarOpen ? (

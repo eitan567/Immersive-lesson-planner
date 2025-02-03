@@ -35,7 +35,7 @@ const MainContent = React.memo(() => {
 
   useEffect(() => {
     console.log('MainContent lessonPlan:', lessonPlan);
-  }, [lessonPlan]);
+  }, []);
 
   const handleSectionUpdate = React.useCallback((
     phase: 'opening' | 'main' | 'summary',
@@ -79,10 +79,10 @@ const MainContent = React.memo(() => {
     onUpdateField: handleFieldUpdate,
     currentValues: {
       topic: lessonPlan?.topic || '',
-      duration: lessonPlan?.duration || '',
+      duration: String(lessonPlan?.duration || ''),
       gradeLevel: lessonPlan?.gradeLevel || '',
       priorKnowledge: lessonPlan?.priorKnowledge || '',
-      position: lessonPlan?.position || '',
+      position: String(lessonPlan?.position || ''),
       contentGoals: lessonPlan?.contentGoals || '',
       skillGoals: lessonPlan?.skillGoals || ''
     }
@@ -98,10 +98,10 @@ const MainContent = React.memo(() => {
     onUpdateField: handleFieldUpdate,
     currentValues: {
       topic: lessonPlan?.topic || '',
-      duration: lessonPlan?.duration || '',
+      duration: String(lessonPlan?.duration || ''),
       gradeLevel: lessonPlan?.gradeLevel || '',
       priorKnowledge: lessonPlan?.priorKnowledge || '',
-      position: lessonPlan?.position || '',
+      position: String(lessonPlan?.position || ''),
       contentGoals: lessonPlan?.contentGoals || '',
       skillGoals: lessonPlan?.skillGoals || ''
     }
@@ -136,7 +136,7 @@ const MainContent = React.memo(() => {
         <div dir="rtl" className="mx-auto space-y-6">
           {error && <ErrorAlert message={error} />}
           <Card>
-            <CardContent className='h-[calc(100vh-130px)] min-h-[530px]'>
+            <CardContent className='min-h-[calc(100vh-130px)]'>
               {lessonPlan && (
                 <LessonContent
                   currentStep={currentStep}

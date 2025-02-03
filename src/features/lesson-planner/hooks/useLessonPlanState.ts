@@ -118,8 +118,8 @@ const useLessonPlanState = () => {
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    self.globalThis.addEventListener('beforeunload', handleBeforeUnload);
+    return () => self.globalThis.removeEventListener('beforeunload', handleBeforeUnload);
   }, [unsavedChanges]);
 
   // Auto-save draft to localStorage
@@ -157,7 +157,7 @@ const useLessonPlanState = () => {
     
     try {
       setSaveInProgress(true);
-      const { id, userId, created_at, updated_at, ...updates } = lessonPlan;
+      const {...updates } = lessonPlan;
       await lessonPlanService.updateLessonPlan(lessonPlan.id, updates);
       setError(null);
       setLastSaved(new Date());

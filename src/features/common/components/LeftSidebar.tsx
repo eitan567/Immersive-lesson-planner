@@ -23,13 +23,13 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
   // הוסף לוג לבדיקת הערכים
   useEffect(() => {
     console.log('Sidebar currentValues:', currentValues);
-  }, [currentValues]);
+  }, []);
 
   return (
-    <aside className="w-80 border-r border-slate-200 bg-white shrink-0">
+    <aside className="w-80 border-r border-slate-200 shrink-0">
       <div className="fixed w-80 p-6 space-y-6">
         <Card>
-          <CardContent className="p-4 space-y-2">
+          <CardContent className="p-4 space-y-2 bg-[#fff4fc]">
             <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>
             <div className="text-sm text-slate-600">
               {lessonTitle || "ללא כותרת"}
