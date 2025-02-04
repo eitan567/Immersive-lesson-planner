@@ -20,10 +20,10 @@ export interface LessonPlan {
   id: string;
   userId: string;
   topic: string;
-  duration: number;
+  duration: string;
   gradeLevel: string;
   priorKnowledge: string;
-  position: number;
+  position: string;
   contentGoals: string;
   skillGoals: string;
   sections: LessonPlanSections;
@@ -31,7 +31,7 @@ export interface LessonPlan {
   updated_at: string;
   basicInfo: {
     title: string;
-    duration: number;
+    duration: string;
     gradeLevel: string;
     priorKnowledge: string;
     contentGoals: string;

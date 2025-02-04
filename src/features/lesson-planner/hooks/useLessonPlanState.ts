@@ -16,7 +16,14 @@ const createEmptyLessonPlan = (userId: string): Omit<LessonPlan, 'id' | 'created
   position: '',
   contentGoals: '',
   skillGoals: '',
-  basicInfo: { title: '' },
+  basicInfo: {
+    title: '',
+    duration: '',
+    gradeLevel: '',
+    priorKnowledge: '',
+    contentGoals: '',
+    skillGoals: ''
+  },
   sections: {
     opening: [],
     main: [],

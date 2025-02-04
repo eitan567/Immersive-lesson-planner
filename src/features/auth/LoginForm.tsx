@@ -103,7 +103,8 @@ const LoginForm = () => {
               </div>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-3 justify-items-stretch justify-around items-center content-center
+">
               <Button
                 type="button"
                 variant="outline"
