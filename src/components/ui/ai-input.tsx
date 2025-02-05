@@ -149,7 +149,7 @@ const AIInput = React.forwardRef<HTMLInputElement, AIInputProps>(
             </button>
             <button
               onClick={toggleChatMode}
-              className="hover:!bg-[#681bc2] hover:!text-white flex left-0 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
+              className="flex left-0 top-0.5 p-1.5 text-gray-600 hover:text-blue-800 transition-colors outline-none focus:outline-none"
               title="פתח שיחה"
             >
               <ChatBubbleLeftRightIcon className="h-5 w-5 text-blue-800 aibutton hover:!text-[#8b57c8]" />
