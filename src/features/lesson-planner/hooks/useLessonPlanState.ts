@@ -60,24 +60,33 @@ const useLessonPlanState = () => {
       try {
         setLoading(true);
         
+        // Try to get all user's lesson plans
+        const userPlans = await lessonPlanService.getUserLessonPlans(user.id);
+        
         // Try to load existing plan ID from localStorage
         const existingPlanId = localStorage.getItem(STORAGE_KEY);
         
         if (existingPlanId) {
-          try {
-            // Try to load the existing plan
-            const existingPlan = await lessonPlanService.getLessonPlan(existingPlanId);
-            if (existingPlan && existingPlan.userId === user.id) {
-              setLessonPlan(existingPlan);
-              setError(null);
-              return;
-            }
-          } catch (err) {
-            console.error('Failed to load existing plan:', err);
+          // Try to find the plan in user's plans
+          const existingPlan = userPlans.find(plan => plan.id === existingPlanId);
+          if (existingPlan) {
+            setLessonPlan(existingPlan);
+            setError(null);
+            return;
           }
         }
         
-        // Create new plan if no existing plan found
+        // If no valid existing plan, check if user has any plans
+        if (userPlans.length > 0) {
+          // Use the most recent plan
+          const mostRecentPlan = userPlans[0]; // Plans are ordered by created_at desc
+          localStorage.setItem(STORAGE_KEY, mostRecentPlan.id);
+          setLessonPlan(mostRecentPlan);
+          setError(null);
+          return;
+        }
+        
+        // Only create new plan if user has no plans at all
         const emptyPlan = createEmptyLessonPlan(user.id);
         const created = await lessonPlanService.createLessonPlan(emptyPlan);
         if (created.id) {
