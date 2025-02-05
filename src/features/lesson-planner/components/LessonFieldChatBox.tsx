@@ -214,8 +214,8 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   };
 
   return (
-    <Card className="mt-4">
-      <div className="p-4 bg-[#fff4fc] rounded-lg">
+    <Card className="mt-4 border border-[#eadfff] rounded-[9px] shadow-none">
+      <div className="p-4 bg-[#fff4fc] rounded-lg ">
         <div className="flex justify-between items-center">
           <h3 className="font-medium text-slate-800 mb-1">שיחה על פרטי השיעור</h3>
           <button
@@ -296,7 +296,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="בקש עזרה בניסוח, שיפור או שינוי פרטי השיעור..."
-                className="flex-1"
+                className="flex-1 shadow-none"
                 dir="rtl"
                 disabled={loading}
               />
