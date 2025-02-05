@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "../../../components/ui/button.tsx";
 import { Input } from "../../../components/ui/input.tsx";
 import { Card } from "../../../components/ui/card.tsx";
@@ -55,6 +55,23 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   const [currentMessage, setCurrentMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [shouldSend, setShouldSend] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Also scroll to bottom when chat is opened
+  useEffect(() => {
+    if (isOpen) scrollToBottom();
+  }, [isOpen]);
 
   useEffect(() => {
     console.log('LessonFieldChatBox mounted with currentValues:', currentValues);
@@ -241,7 +258,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
         {isOpen && (
           <div className="space-y-4">
-            <div className="h-[calc(100vh-405px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
+            <div ref={chatContainerRef} className="h-[calc(100vh-405px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
                   אפשר לבקש עזרה בניסוח, שיפור או שינוי של פרטי השיעור ומבנה השיעור.
@@ -272,7 +289,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                   >
                     <div className="shrink-0">
                       {message.sender === 'user' ? (
-                        <MdFace className="h-5 w-5 text-[darkslateblue]" />
+                        <MdFace className="h-6 w-6 text-[darkslateblue]" />
                       ) : (
                         <SiProbot className="h-5 w-5 text-[darkmagenta]" />
                       )}
