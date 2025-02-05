@@ -411,9 +411,6 @@ private validateResponse(response: string): boolean {
     const parsed = JSON.parse(cleaned);
     console.log('Parsed response:', parsed);
     
-    const validFields = ['topic', 'duration', 'gradeLevel', 'priorKnowledge',
-                        'position', 'contentGoals', 'skillGoals'];
-
     // If it's a single object, wrap it in an array
     const updates = Array.isArray(parsed) ? parsed : [parsed];
     
@@ -425,7 +422,6 @@ private validateResponse(response: string): boolean {
         return false;
       }
       
-      console.log('typeof update.newValue:', typeof update.newValue !== 'string');
       // Check types
       if (typeof update.fieldToUpdate !== 'string' ||
           typeof update.userResponse !== 'string' ||
@@ -434,11 +430,6 @@ private validateResponse(response: string): boolean {
         return false;
       }
       
-      // Check field key validity
-      if (!validFields.includes(update.fieldToUpdate)) {
-        console.log('Invalid field key:', update.fieldToUpdate);
-        return false;
-      }
       
       return true;
     });
@@ -490,7 +481,7 @@ private validateResponse(response: string): boolean {
               additionalProperties: { type: "string" }
             },
             rephrase: {
-              type: "boolean",
+	      type: "boolean",
               description: "Whether to rephrase/improve the field content instead of direct update"
             },
             currentValues: {
@@ -630,6 +621,36 @@ private createUpdatePrompt(args: UpdateLessonFieldArgs): string {
 
   return `אתה עוזר למורים לשפר את תוכן השיעור שלהם.
 
+[הנחיות חובה]
+
+משימתך מתחלקת לשני סוגי שדות:
+1. פרטי השיעור (נושא, זמן, מטרות וכו')
+2. בניית השיעור (פתיחה, גוף, סיכום - כל אחד כולל תוכן ושימוש במרחב)
+
+כללי הטיפול בשדות:
+
+1. כשנאמר "הצע ערכים לכל השדות":
+   - חובה לעדכן את כל השדות בלי יוצא מן הכלל!
+   - גם שדות ריקים וגם שדות מלאים
+   - גם פרטי השיעור וגם בניית השיעור
+   - תן תוכן מפורט וחדש לכל שדה
+   
+2. כשנאמר "מלא שדות ריקים":
+   - עדכן רק שדות המסומנים (ריק)
+   - אל תיגע בשדות מלאים
+
+3. חובה להוסיף תגית UI בסוף כל תשובה:
+   - פרטי שיעור: "<שדה: נושא היחידה>"
+   - בניית שיעור: "<שדה: פתיחה - תוכן/פעילות>"
+
+4. הנחיות לבניית השיעור:
+   בכל תוכן פעילות יש לפרט:
+   - מה התלמידים עושים
+   - איך משתמשים במסכים
+   - איך מאורגן המרחב
+   - מה המורה עושה
+   
+
 [מיפוי שדות]
 ${fieldsMapping}
 
@@ -664,25 +685,30 @@ ${args.message}
   }
 ]
 
+דוגמה לתשובה מלאה:
+[
+  {
+    "fieldToUpdate": "topic",
+    "userResponse": "עדכנתי את נושא היחידה לנושא מרתק המתאים במיוחד לחדר האימרסיבי <שדה: נושא היחידה>",
+    "newValue": "מסע אל מערכת השמש - חקר כוכבי הלכת בסביבה אימרסיבית"
+  },
+  {
+    "fieldToUpdate": "opening.0.content",
+    "userResponse": "הוספתי פעילות פתיחה שמנצלת את המסכים והחלל באופן מיטבי <שדה: פתיחה - תוכן/פעילות>",
+    "newValue": "התלמידים נכנסים לחדר חשוך כשעל שלושת המסכים מוקרנים שמי הלילה מזוויות שונות. המורה מציגה שאלה מעוררת חשיבה על המסך המרכזי: 'מה קורה לכוכבים ביום?' התלמידים מתפזרים בחלל ורושמים את השערותיהם על טאבלטים."
+  },
+  {
+    "fieldToUpdate": "opening.0.spaceUsage",
+    "userResponse": "ארגנתי את החלל לפעילות הפתיחה <שדה: פתיחה - שימוש במרחב>",
+    "newValue": "התלמידים מפוזרים ברחבי החדר החשוך, כל קבוצה באזור אחר. המורה במרכז החדר."
+  }
+]
+
 חובה:
 1. השתמש רק במפתחות הטכניים שמופיעים במיפוי למעלה (כמו "duration", לא "זמן כולל")
 2. תמיד תחזיר מערך שמתחיל ב-[ ומסתיים ב-], גם אם יש רק פריט אחד
 3. וודא שהפסיקים והרווחים בדיוק כמו בדוגמה (2 רווחים להזחה)
 4. אסור להוסיף טקסט מחוץ ל-JSON
-
-דוגמה לתשובה טובה כאשר מעדכנים מספר שדות:
-[
-  {
-    "fieldToUpdate": "duration",
-    "userResponse": "קבעתי את משך היחידה ל-6 שעות, שיאפשרו סקירה מקיפה של הנושא עם זמן לדיונים ותרגול.",
-    "newValue": "6 שעות"
-  },
-  {
-    "fieldToUpdate": "gradeLevel",
-    "userResponse": "בחרתי בכיתות ט' כקהל היעד, כיוון שיש להם את הבסיס המדעי הנדרש והבשלות לדון בנושא.",
-    "newValue": "כיתה ט'"
-  }
-]
   
   חשוב: 
   - הערך של "newValue" חייב להיות טקסט ולא מערך של טקסטים"
@@ -690,9 +716,6 @@ ${args.message}
   - אל תשתמש בסימני [] או תבניות למילוי
   - תן ערך מוחלט ומלא שמתאים לשדה`;
   }
-  /**
-   * Handle incoming HTTP requests, bridging them to the same logic as the MCP calls.
-   */
 }
 
 /**

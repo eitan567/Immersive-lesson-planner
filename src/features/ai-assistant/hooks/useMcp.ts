@@ -37,21 +37,27 @@ export async function useMcpTool<T = McpToolResult>(
       body: JSON.stringify(requestBody)
     });
 
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Expected JSON response from server');
-    }
-
     const result = await response.json();
+    
+    // Handle both 200 and error responses that are JSON
+    if (!response.ok) {
+      return {
+        error: result.error?.message || 'Server error occurred'
+      };
+    }
     
     // Check for JSON-RPC error
     if (result.error) {
-      throw new Error(result.error.message || 'Unknown error occurred');
+      return {
+        error: result.error.message || 'Unknown error occurred'
+      };
     }
 
-    // Validate response structure
+    // If we have a result but missing content, return structured error
     if (!result.result || !Array.isArray(result.result.content)) {
-      throw new Error('Invalid response format from server');
+      return {
+        error: 'Invalid response format from server'
+      };
     }
 
     return result.result as T;

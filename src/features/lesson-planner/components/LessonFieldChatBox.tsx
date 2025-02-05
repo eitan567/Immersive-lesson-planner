@@ -3,6 +3,9 @@ import { Button } from "../../../components/ui/button.tsx";
 import { Input } from "../../../components/ui/input.tsx";
 import { Card } from "../../../components/ui/card.tsx";
 import { useMcpTool } from '../../ai-assistant/hooks/useMcp.ts';
+import { Badge } from "../../../components/ui/badge.tsx";
+import { SiProbot } from "react-icons/si";
+import { MdFace } from "react-icons/md";
 import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 interface Message {
@@ -11,25 +14,38 @@ interface Message {
   timestamp: Date;
 }
 
+import { LessonPlanSections } from '../types.ts';
+
 interface LessonFieldChatBoxProps {
   onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
   currentValues: Record<string, string>;
+  sections: LessonPlanSections;
   saveCurrentPlan: () => Promise<void>;
 }
 
 const FIELD_LABELS: Record<string, string> = {
+  // Basic info fields
   topic: 'נושא היחידה',
   duration: 'זמן כולל',
   gradeLevel: 'שכבת גיל',
   priorKnowledge: 'ידע קודם נדרש',
   position: 'מיקום בתוכן',
   contentGoals: 'מטרות ברמת התוכן',
-  skillGoals: 'מטרות ברמת המיומנויות'
+  skillGoals: 'מטרות ברמת המיומנויות',
+  
+  // Lesson section fields
+  'opening.0.content': 'פתיחה - תוכן/פעילות',
+  'opening.0.spaceUsage': 'פתיחה - שימוש במרחב הפיזי',
+  'main.0.content': 'גוף השיעור - תוכן/פעילות',
+  'main.0.spaceUsage': 'גוף השיעור - שימוש במרחב הפיזי',
+  'summary.0.content': 'סיכום - תוכן/פעילות',
+  'summary.0.spaceUsage': 'סיכום - שימוש במרחב הפיזי'
 };
 
 export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   onUpdateField,
   currentValues,
+  sections,
   saveCurrentPlan
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,8 +64,19 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
     try {
       setLoading(true);
 
-      // הוסף לוג לפני שליחת הבקשה
-      console.log('Sending request with currentValues:', currentValues);
+      // Build currentValues including section data
+      const allValues = {
+        ...currentValues,
+        // Add section values with null checks
+        'opening.0.content': sections?.opening?.[0]?.content || '',
+        'opening.0.spaceUsage': sections?.opening?.[0]?.spaceUsage || '',
+        'main.0.content': sections?.main?.[0]?.content || '',
+        'main.0.spaceUsage': sections?.main?.[0]?.spaceUsage || '',
+        'summary.0.content': sections?.summary?.[0]?.content || '',
+        'summary.0.spaceUsage': sections?.summary?.[0]?.spaceUsage || ''
+      };
+
+      console.log('Sending request with currentValues:', allValues);
       
       setMessages(prev => [...prev, {
         text: currentMessage,
@@ -63,16 +90,36 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
         arguments: {
           message: currentMessage,
           fieldLabels: FIELD_LABELS,
-          currentValues: currentValues,
+          currentValues: allValues,
           rephrase: currentMessage.includes('נסח') || currentMessage.includes('שפר')
         }
       });
 
       if ('error' in response) {
-        throw new Error(response.error);
+        let errorMessage = response.error;
+        if (typeof errorMessage === 'string') {
+          if (errorMessage.includes('Resource has been exhausted') ||
+              errorMessage.includes('quota')) {
+            errorMessage = 'מצטער, המערכת לא זמינה כרגע. אנא נסה שוב מאוחר יותר או פנה למנהל המערכת.';
+          } else if (errorMessage.includes('Invalid response format')) {
+            errorMessage = 'מצטער, התקבלה תשובה לא תקינה מהשרת. אנא נסה שוב.';
+          }
+        }
+        throw new Error(errorMessage);
       }
 
-      const parsed = JSON.parse(response.content[0].text);
+      const responseText = response.content?.[0]?.text;
+      if (!responseText) {
+        throw new Error('לא התקבלה תשובה מהשרת. אנא נסה שוב.');
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('התקבל מידע לא תקין מהשרת. אנא נסה שוב.');
+      }
       
       // Handle both single object and array responses
       const updates = Array.isArray(parsed) ? parsed : [parsed];
@@ -94,17 +141,37 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
         }))
       ]);
 
-      // Create a batch update array
-      const batchUpdates = updates.map(update => [
-        update.fieldToUpdate,
-        update.newValue
-      ] as [string, string]);
+      // Create a batch update array, handling both basic and section updates
+      const batchUpdates = updates.map(update => {
+        const fieldName = update.fieldToUpdate;
+        const newValue = update.newValue;
+        
+        // Check if this is a section update
+        if (fieldName.includes('.')) {
+          // Extract section and type from field name (e.g., 'opening.0.content')
+          const [phase, index, field] = fieldName.split('.');
+          
+          // Make sure this is a valid section field we can handle
+          if (phase && field && ['opening', 'main', 'summary'].includes(phase) &&
+              ['content', 'spaceUsage'].includes(field)) {
+            return [fieldName, newValue] as [string, string];
+          }
+        }
+        
+        // Handle basic fields
+        return [fieldName, newValue] as [string, string];
+      });
 
-      // Apply all updates in one batch
-      await onUpdateField(batchUpdates);
+      // Filter out any invalid updates
+      const validUpdates = batchUpdates.filter(update =>
+        update && FIELD_LABELS[update[0]] !== undefined
+      );
 
-      // Save changes
-      await saveCurrentPlan();
+      // Apply all valid updates in one batch
+      if (validUpdates.length > 0) {
+        await onUpdateField(validUpdates);
+        await saveCurrentPlan();
+      }
 
     } catch (error) {
       console.error('Failed to process request:', error);
@@ -126,6 +193,26 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
     }
   };
 
+  const renderMessageText = (text: string) => {
+    // Match field tags like <שדה: שכבת גיל>
+    const parts = text.split(/(<שדה:\s*[^>]+>)/);
+    return parts.map((part, index) => {
+      const fieldMatch = part.match(/<שדה:\s*([^>]+)>/);
+      if (fieldMatch) {
+        const fieldName = fieldMatch[1].trim();
+        return (
+          <>
+          <br/>
+          <Badge key={index} className="mx-1 float-left mt-[10px]">
+            {fieldName}
+          </Badge>
+          </>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <Card className="mt-4">
       <div className="p-4 bg-[#fff4fc] rounded-lg">
@@ -145,18 +232,26 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
         {isOpen && (
           <div className="space-y-4">
-            <div className="h-[calc(100vh-380px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
+            <div className="h-[calc(100vh-430px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
-                  אפשר לבקש עזרה בניסוח, שיפור או שינוי של פרטי השיעור.
+                  אפשר לבקש עזרה בניסוח, שיפור או שינוי של פרטי השיעור ומבנה השיעור.
                   <br />
                   לדוגמה:
+                  <br />
+                  דוגמאות לפרטי השיעור:
                   <br />
                   "שנה את נושא היחידה ל'אנרגיה מתחדשת'"
                   <br />
                   "תעזור לי לנסח טוב יותר את מטרות התוכן"
                   <br />
-                  "תציע לי רעיונות לשיפור הידע הקודם הנדרש"
+                  דוגמאות לבניית השיעור:
+                  <br />
+                  "תציע פעילות מעניינת לפתיחת השיעור"
+                  <br />
+                  "תשפר את השימוש במרחב בגוף השיעור"
+                  <br />
+                  "תציע פעילות סיכום אינטראקטיבית"
                 </div>
               ) : (
                 messages.map((message, index) => (
@@ -168,21 +263,22 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                   >
                     <div className="shrink-0">
                       {message.sender === 'user' ? (
-                        <UserCircleIcon className="h-6 w-6 text-blue-600" />
+                        <MdFace className="h-5 w-5 text-[darkslateblue]" />
                       ) : (
-                        <div className="h-6 w-6 rounded-full bg-green-600 flex items-center justify-center text-white text-xs">
-                          AI
-                        </div>
+                        // <div className="h-6 w-6 rounded-full bg-[darkmagenta] flex items-center justify-center text-white text-xs">
+                        //   AI
+                        // </div>
+                        <SiProbot className="h-5 w-5 text-[darkmagenta]" />
                       )}
                     </div>
                     <div
-                      className={`p-3 rounded-lg max-w-[80%] ${
+                      className={`p-2 text-sm rounded-lg max-w-[80%] ${
                         message.sender === 'user'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white border'
+                          ? 'bg-[darkslateblue] text-white px-[8px] pt-[3px] pb-[4px]'
+                          : 'bg-[honeydew] border rounded-md'
                       }`}
                     >
-                      {message.text}
+                      {renderMessageText(message.text)}
                     </div>
                   </div>
                 ))

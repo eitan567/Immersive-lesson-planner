@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext.tsx';
-import type { LessonPlan, LessonPlanSections } from '../types.ts';
+import type { LessonPlan, LessonPlanSections, LessonSection, LessonPhaseType } from '../types.ts';
 import { lessonPlanService } from '../services/lessonPlanService.ts';
 
 const STORAGE_KEY = 'currentLessonPlanId';
@@ -31,6 +31,48 @@ const createEmptyLessonPlan = (userId: string): Omit<LessonPlan, 'id' | 'created
   }
 });
 
+const createEmptySection = (): LessonSection => ({
+  content: '',
+  spaceUsage: '',
+  screens: {
+    screen1: '',
+    screen2: '',
+    screen3: ''
+  }
+});
+
+const isPhaseKey = (key: string): key is LessonPhaseType => {
+  return ['opening', 'main', 'summary'].includes(key);
+};
+
+const isSectionField = (key: string): boolean => {
+  const [phase] = key.split('.');
+  return isPhaseKey(phase);
+};
+
+const updateSection = (sections: LessonPlanSections, fieldPath: string, newValue: string): LessonPlanSections => {
+  const [phase, index, prop] = fieldPath.split('.');
+  if (!isPhaseKey(phase)) return sections;
+
+  const sectionIndex = parseInt(index);
+  if (isNaN(sectionIndex)) return sections;
+
+  const updatedPhase = [...sections[phase]];
+  if (!updatedPhase[sectionIndex]) {
+    updatedPhase[sectionIndex] = createEmptySection();
+  }
+
+  const section = { ...updatedPhase[sectionIndex] };
+  if (prop === 'content' || prop === 'spaceUsage') {
+    section[prop] = newValue;
+  } else if (prop.startsWith('screen')) {
+    section.screens = { ...section.screens, [prop]: newValue };
+  }
+
+  updatedPhase[sectionIndex] = section;
+  return { ...sections, [phase]: updatedPhase };
+};
+
 const useLessonPlanState = () => {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(() => {
@@ -44,12 +86,10 @@ const useLessonPlanState = () => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
 
-  // Save currentStep to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
   }, [currentStep]);
 
-  // Load or initialize lesson plan
   useEffect(() => {
     const loadLessonPlan = async () => {
       if (!user) {
@@ -59,15 +99,10 @@ const useLessonPlanState = () => {
 
       try {
         setLoading(true);
-        
-        // Try to get all user's lesson plans
         const userPlans = await lessonPlanService.getUserLessonPlans(user.id);
-        
-        // Try to load existing plan ID from localStorage
         const existingPlanId = localStorage.getItem(STORAGE_KEY);
         
         if (existingPlanId) {
-          // Try to find the plan in user's plans
           const existingPlan = userPlans.find(plan => plan.id === existingPlanId);
           if (existingPlan) {
             setLessonPlan(existingPlan);
@@ -76,17 +111,14 @@ const useLessonPlanState = () => {
           }
         }
         
-        // If no valid existing plan, check if user has any plans
         if (userPlans.length > 0) {
-          // Use the most recent plan
-          const mostRecentPlan = userPlans[0]; // Plans are ordered by created_at desc
+          const mostRecentPlan = userPlans[0];
           localStorage.setItem(STORAGE_KEY, mostRecentPlan.id);
           setLessonPlan(mostRecentPlan);
           setError(null);
           return;
         }
         
-        // Only create new plan if user has no plans at all
         const emptyPlan = createEmptyLessonPlan(user.id);
         const created = await lessonPlanService.createLessonPlan(emptyPlan);
         if (created.id) {
@@ -104,83 +136,33 @@ const useLessonPlanState = () => {
     loadLessonPlan();
   }, [user]);
 
-  // Handle tab visibility change
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible' && user && lessonPlan?.id) {
-        try {
-          const refreshedPlan = await lessonPlanService.getLessonPlan(lessonPlan.id);
-          if (refreshedPlan) {
-            setLessonPlan(refreshedPlan);
-          }
-        } catch (err) {
-          console.error('Failed to refresh plan:', err);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [user, lessonPlan?.id]);
-
-  // Handle beforeunload event
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (unsavedChanges) {
-        const message = 'יש שינויים שעדיין לא נשמרו. האם אתה בטוח שברצונך לעזוב?';
-        e.preventDefault();
-        e.returnValue = message;
-        return message;
-      }
-    };
-
-    self.globalThis.addEventListener('beforeunload', handleBeforeUnload);
-    return () => self.globalThis.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [unsavedChanges]);
-
-  // Auto-save draft to localStorage
-  useEffect(() => {
-    if (!lessonPlan?.id) return;
-
-    const storageKey = `lessonPlan_${lessonPlan.id}_draft`;
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(lessonPlan));
-    } catch (err) {
-      console.error('Failed to save draft:', err);
-    }
-  }, [lessonPlan]);
-
   const handleStepChange = (updater: number | ((prev: number) => number)) => {
     const newStep = typeof updater === 'function' ? updater(currentStep) : updater;
     setCurrentStep(newStep);
     localStorage.setItem(STEP_STORAGE_KEY, newStep.toString());
   };
 
-  const handleBasicInfoChange = async (field: keyof LessonPlan | Array<[keyof LessonPlan, string]>, value?: string) => {
+  const handleBasicInfoChange = async (
+    field: keyof LessonPlan | Array<[string, string]>,
+    value?: string
+  ) => {
     if (!lessonPlan || !user) return;
 
     setLessonPlan(prevPlan => {
       if (!prevPlan) return null;
 
       if (Array.isArray(field)) {
-        // Handle batch updates
-        const updates = field.reduce((acc, [key, val]) => ({
-          ...acc,
-          [key]: val
-        }), {});
-
-        return {
-          ...prevPlan,
-          ...updates
-        };
-      } else {
-        // Handle single update
-        return {
-          ...prevPlan,
-          [field]: value!
-        };
+        return field.reduce((plan, [key, val]) => {
+          if (isSectionField(key)) {
+            return { ...plan, sections: updateSection(plan.sections, key, val) };
+          }
+          return { ...plan, [key]: val };
+        }, prevPlan);
       }
+
+      return { ...prevPlan, [field]: value };
     });
+
     setUnsavedChanges(true);
   };
 
@@ -217,16 +199,7 @@ const useLessonPlanState = () => {
   const addSection = async (phase: keyof LessonPlanSections) => {
     if (!lessonPlan || !user) return;
 
-    const newSection = {
-      content: '',
-      screens: {
-        screen1: '',
-        screen2: '',
-        screen3: ''
-      },
-      spaceUsage: ''
-    };
-
+    const newSection = createEmptySection();
     const updatedSections = {
       ...lessonPlan.sections,
       [phase]: [...lessonPlan.sections[phase], newSection]

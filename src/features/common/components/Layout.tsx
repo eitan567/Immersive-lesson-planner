@@ -15,6 +15,11 @@ interface LayoutProps {
     onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
     currentValues: Record<string, string>;
     saveCurrentPlan: () => Promise<void>;
+    sections: {
+      opening: any;
+      main: any;
+      summary: any;
+    };
   };
   leftSidebarProps: {
     saveInProgress: boolean;
@@ -24,6 +29,11 @@ interface LayoutProps {
     onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
     currentValues: Record<string, string>;
     saveCurrentPlan: () => Promise<void>;
+    sections: {
+      opening: any;
+      main: any;
+      summary: any;
+    };
   };
 }
 
@@ -41,7 +51,7 @@ export const Layout = React.memo(({ children, user, rightSidebarProps, leftSideb
 
       <div className="relative flex">
           {/* LeftSidebar Container */}
-          <div className={`bg-[#85003f05] border-r border-gray-300 transition-all duration-300 ease-in-out ${isLeftSidebarOpen ? 'w-80' : 'w-0'} overflow-hidden`}>
+          <div className={`bg-[#85003f05] border-r border-gray-300 transition-all duration-300 ease-in-out ${isLeftSidebarOpen ? 'w-[30rem]' : 'w-0'} overflow-hidden`}>
             <LeftSidebar {...leftSidebarProps} />
           </div>
           
@@ -67,7 +77,7 @@ export const Layout = React.memo(({ children, user, rightSidebarProps, leftSideb
 
         <div className="relative flex">
           {/* RightSidebar Container */}
-          <div className={`bg-[#85003f05] border-l border-gray-300 transition-all duration-300 ease-in-out ${isRightSidebarOpen ? 'w-96' : 'w-0'} overflow-hidden`}>
+          <div className={`bg-[#85003f05] border-l border-gray-300 transition-all duration-300 ease-in-out ${isRightSidebarOpen ? 'w-[30rem]' : 'w-0'} overflow-hidden`}>
             <RightSidebar {...rightSidebarProps} />
           </div>
           
