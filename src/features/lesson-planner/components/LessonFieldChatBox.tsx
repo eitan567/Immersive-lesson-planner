@@ -50,7 +50,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   sections,
   saveCurrentPlan
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [loading, setLoading] = useState(false);
