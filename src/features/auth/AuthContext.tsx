@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, type SupabaseUser } from '../../lib/supabase.ts';
+import { supabase, type SupabaseUser } from '../../lib/supabase-client.ts';
 import {
-  Session,
-  AuthError,
-  AuthChangeEvent
+  type Session,
+  type AuthError,
+  type AuthChangeEvent
 } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
