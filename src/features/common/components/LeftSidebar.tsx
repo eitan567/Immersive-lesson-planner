@@ -32,7 +32,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   return (
     <aside className="w-[30rem] border-r border-slate-200 shrink-0">
-      <div className="fixed [30rem] p-6 space-y-6">
+      <div className="fixed w-[30rem] p-6 space-y-6">
         <Card>
           <CardContent className="p-4 space-y-2 bg-[#fff4fc]">
             <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>
