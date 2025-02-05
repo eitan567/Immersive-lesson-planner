@@ -6,7 +6,9 @@ import { useMcpTool } from '../../ai-assistant/hooks/useMcp.ts';
 import { Badge } from "../../../components/ui/badge.tsx";
 import { SiProbot } from "react-icons/si";
 import { MdFace } from "react-icons/md";
-import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon,
+         DocumentDuplicateIcon, ArrowPathIcon
+} from '@heroicons/react/24/outline';
 
 interface Message {
   text: string;
@@ -193,6 +195,18 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
     }
   };
 
+  const handleCopyMessage = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
+  };
+
+  const handleResendMessage = (text: string) => {
+    setCurrentMessage(text);
+  };
+
   const renderMessageText = (text: string) => {
     // Match field tags like <שדה: שכבת גיל>
     const parts = text.split(/(<שדה:\s*[^>]+>)/);
@@ -272,13 +286,31 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                       )}
                     </div>
                     <div
-                      className={`p-2 text-sm rounded-lg max-w-[80%] ${
+                     className={`relative p-2 text-sm rounded-lg max-w-[80%] ${
                         message.sender === 'user'
                           ? 'bg-[darkslateblue] text-white px-[8px] pt-[3px] pb-[4px]'
                           : 'bg-[honeydew] border rounded-md'
                       }`}
                     >
                       {renderMessageText(message.text)}
+                      {message.sender === 'ai' && (
+                        <div className="flex gap-2 mt-3 justify-start text-gray-800">
+                          <button
+                            onClick={() => handleCopyMessage(message.text)}
+                            className="hover:text-[#540ba9] transition-colors"
+                            title="העתק הודעה"
+                          >
+                            <DocumentDuplicateIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleResendMessage(message.text)}
+                            className="hover:text-[#540ba9] transition-colors"
+                            title="שלח שוב"
+                          >
+                            <ArrowPathIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
