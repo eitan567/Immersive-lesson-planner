@@ -156,15 +156,31 @@ const useLessonPlanState = () => {
     localStorage.setItem(STEP_STORAGE_KEY, newStep.toString());
   };
 
-  const handleBasicInfoChange = (field: keyof LessonPlan, value: string) => {
+  const handleBasicInfoChange = async (field: keyof LessonPlan | Array<[keyof LessonPlan, string]>, value?: string) => {
     if (!lessonPlan || !user) return;
 
-    const updatedPlan = {
-      ...lessonPlan,
-      [field]: value
-    };
+    setLessonPlan(prevPlan => {
+      if (!prevPlan) return null;
 
-    setLessonPlan(updatedPlan);
+      if (Array.isArray(field)) {
+        // Handle batch updates
+        const updates = field.reduce((acc, [key, val]) => ({
+          ...acc,
+          [key]: val
+        }), {});
+
+        return {
+          ...prevPlan,
+          ...updates
+        };
+      } else {
+        // Handle single update
+        return {
+          ...prevPlan,
+          [field]: value!
+        };
+      }
+    });
     setUnsavedChanges(true);
   };
 

@@ -54,16 +54,24 @@ const MainContent = React.memo(() => {
     updateSections(updatedSections);
   }, [lessonPlan, updateSections]);
 
-  const handleFieldUpdate = React.useCallback(async (fieldName: string, value: string) => {
+  const handleFieldUpdate = React.useCallback(async (fieldName: string | Array<[string, string]>, value?: string) => {
     if (!lessonPlan) return;
     
-    // Only allow updating fields that exist in LessonPlan type
     const validFields: (keyof LessonPlan)[] = [
-      'topic', 'duration', 'gradeLevel', 'priorKnowledge', 
+      'topic', 'duration', 'gradeLevel', 'priorKnowledge',
       'position', 'contentGoals', 'skillGoals'
     ];
-    
-    if (validFields.includes(fieldName as keyof LessonPlan)) {
+
+    if (Array.isArray(fieldName)) {
+      // Handle batch updates
+      for (const [field, val] of fieldName) {
+        if (validFields.includes(field as keyof LessonPlan)) {
+          handleBasicInfoChange(field as keyof LessonPlan, val);
+        }
+      }
+      await saveCurrentPlan();
+    } else if (value && validFields.includes(fieldName as keyof LessonPlan)) {
+      // Handle single update
       handleBasicInfoChange(fieldName as keyof LessonPlan, value);
       await saveCurrentPlan();
     }
@@ -85,8 +93,9 @@ const MainContent = React.memo(() => {
       position: String(lessonPlan?.position || ''),
       contentGoals: lessonPlan?.contentGoals || '',
       skillGoals: lessonPlan?.skillGoals || ''
-    }
-  }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate]);
+    },
+    saveCurrentPlan
+  }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate, saveCurrentPlan]);
 
   const leftSidebarProps = React.useMemo(() => ({
     saveInProgress,
@@ -96,6 +105,7 @@ const MainContent = React.memo(() => {
                 (lessonPlan?.sections?.main?.length || 0) +
                 (lessonPlan?.sections?.summary?.length || 0),
     onUpdateField: handleFieldUpdate,
+    saveCurrentPlan,
     currentValues: {
       topic: lessonPlan?.topic || '',
       duration: String(lessonPlan?.duration || ''),
@@ -105,7 +115,7 @@ const MainContent = React.memo(() => {
       contentGoals: lessonPlan?.contentGoals || '',
       skillGoals: lessonPlan?.skillGoals || ''
     }
-  }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate]);
+  }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate, saveCurrentPlan]);
 
   // Show loading spinner while auth is initializing
   if (authLoading) {

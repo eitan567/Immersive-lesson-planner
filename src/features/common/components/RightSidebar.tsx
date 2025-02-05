@@ -8,8 +8,9 @@ interface RightSidebarProps {
   lastSaved: Date | null;
   lessonTitle?: string;
   totalSteps: number;
-  onUpdateField: (fieldName: string, value: string) => Promise<void>;
-  currentValues: Record<string, string>;  // הוסף את זה לProps
+  onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
+  currentValues: Record<string, string>;
+  saveCurrentPlan: () => Promise<void>;
 }
 
 const RightSidebar: React.FC<RightSidebarProps> = ({
@@ -18,7 +19,8 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   lessonTitle,
   totalSteps,
   onUpdateField,
-  currentValues  // יש להוסיף את זה לProps
+  currentValues,
+  saveCurrentPlan
 }) => {
   // הוסף לוג לבדיקת הערכים
   useEffect(() => {
@@ -40,9 +42,10 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           </CardContent>
         </Card>
         
-        <LessonFieldChatBox 
+        <LessonFieldChatBox
           onUpdateField={onUpdateField}
-          currentValues={currentValues}  // וודא שזה מועבר
+          currentValues={currentValues}
+          saveCurrentPlan={saveCurrentPlan}
         />
       </div>
     </aside>

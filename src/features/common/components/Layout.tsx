@@ -12,16 +12,18 @@ interface LayoutProps {
     lastSaved: Date | null;
     lessonTitle?: string;
     totalSteps: number;
-    onUpdateField: (fieldName: string, value: string) => Promise<void>;
+    onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
     currentValues: Record<string, string>;
+    saveCurrentPlan: () => Promise<void>;
   };
   leftSidebarProps: {
     saveInProgress: boolean;
     lastSaved: Date | null;
     lessonTitle?: string;
     totalSteps: number;
-    onUpdateField: (fieldName: string, value: string) => Promise<void>;
+    onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
     currentValues: Record<string, string>;
+    saveCurrentPlan: () => Promise<void>;
   };
 }
 

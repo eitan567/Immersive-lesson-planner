@@ -12,8 +12,9 @@ interface Message {
 }
 
 interface LessonFieldChatBoxProps {
-  onUpdateField: (fieldName: string, value: string) => Promise<void>;
+  onUpdateField: (fieldName: string | Array<[string, string]>, value?: string) => Promise<void>;
   currentValues: Record<string, string>;
+  saveCurrentPlan: () => Promise<void>;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -28,7 +29,8 @@ const FIELD_LABELS: Record<string, string> = {
 
 export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   onUpdateField,
-  currentValues
+  currentValues,
+  saveCurrentPlan
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -75,19 +77,34 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
       // Handle both single object and array responses
       const updates = Array.isArray(parsed) ? parsed : [parsed];
       
+      // First validate all updates
       for (const update of updates) {
         if (!update.fieldToUpdate || !update.userResponse || !update.newValue) {
           throw new Error('תשובת המערכת חסרה שדות נדרשים');
         }
-
-        setMessages(prev => [...prev, {
-          text: update.userResponse,
-          sender: 'ai',
-          timestamp: new Date()
-        }]);
-
-        await onUpdateField(update.fieldToUpdate, update.newValue);
       }
+
+      // Then add all AI responses to messages
+      setMessages(prev => [
+        ...prev,
+        ...updates.map(update => ({
+          text: update.userResponse,
+          sender: 'ai' as const,
+          timestamp: new Date()
+        }))
+      ]);
+
+      // Create a batch update array
+      const batchUpdates = updates.map(update => [
+        update.fieldToUpdate,
+        update.newValue
+      ] as [string, string]);
+
+      // Apply all updates in one batch
+      await onUpdateField(batchUpdates);
+
+      // Save changes
+      await saveCurrentPlan();
 
     } catch (error) {
       console.error('Failed to process request:', error);
