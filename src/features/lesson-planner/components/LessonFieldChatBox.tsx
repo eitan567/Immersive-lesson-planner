@@ -6,7 +6,7 @@ import { useMcpTool } from '../../ai-assistant/hooks/useMcp.ts';
 import { Badge } from "../../../components/ui/badge.tsx";
 import { SiProbot } from "react-icons/si";
 import { MdFace } from "react-icons/md";
-import { XMarkIcon, PaperAirplaneIcon, UserCircleIcon, ChatBubbleLeftRightIcon,
+import { XMarkIcon, PaperAirplaneIcon, ChatBubbleLeftRightIcon,
          DocumentDuplicateIcon, ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
@@ -55,7 +55,6 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   const [currentMessage, setCurrentMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // הוסף לוג לבדיקת הערכים בעת טעינת הקומפוננטה
   useEffect(() => {
     console.log('LessonFieldChatBox mounted with currentValues:', currentValues);
   }, []);
@@ -66,10 +65,8 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
     try {
       setLoading(true);
 
-      // Build currentValues including section data
       const allValues = {
         ...currentValues,
-        // Add section values with null checks
         'opening.0.content': sections?.opening?.[0]?.content || '',
         'opening.0.spaceUsage': sections?.opening?.[0]?.spaceUsage || '',
         'main.0.content': sections?.main?.[0]?.content || '',
@@ -123,17 +120,14 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
         throw new Error('התקבל מידע לא תקין מהשרת. אנא נסה שוב.');
       }
       
-      // Handle both single object and array responses
       const updates = Array.isArray(parsed) ? parsed : [parsed];
       
-      // First validate all updates
       for (const update of updates) {
         if (!update.fieldToUpdate || !update.userResponse || !update.newValue) {
           throw new Error('תשובת המערכת חסרה שדות נדרשים');
         }
       }
 
-      // Then add all AI responses to messages
       setMessages(prev => [
         ...prev,
         ...updates.map(update => ({
@@ -143,33 +137,26 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
         }))
       ]);
 
-      // Create a batch update array, handling both basic and section updates
       const batchUpdates = updates.map(update => {
         const fieldName = update.fieldToUpdate;
         const newValue = update.newValue;
         
-        // Check if this is a section update
         if (fieldName.includes('.')) {
-          // Extract section and type from field name (e.g., 'opening.0.content')
           const [phase, index, field] = fieldName.split('.');
           
-          // Make sure this is a valid section field we can handle
           if (phase && field && ['opening', 'main', 'summary'].includes(phase) &&
               ['content', 'spaceUsage'].includes(field)) {
             return [fieldName, newValue] as [string, string];
           }
         }
         
-        // Handle basic fields
         return [fieldName, newValue] as [string, string];
       });
 
-      // Filter out any invalid updates
       const validUpdates = batchUpdates.filter(update =>
         update && FIELD_LABELS[update[0]] !== undefined
       );
 
-      // Apply all valid updates in one batch
       if (validUpdates.length > 0) {
         await onUpdateField(validUpdates);
         await saveCurrentPlan();
@@ -208,7 +195,6 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   };
 
   const renderMessageText = (text: string) => {
-    // Match field tags like <שדה: שכבת גיל>
     const parts = text.split(/(<שדה:\s*[^>]+>)/);
     return parts.map((part, index) => {
       const fieldMatch = part.match(/<שדה:\s*([^>]+)>/);
@@ -229,7 +215,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
   return (
     <Card className="mt-4 border border-[#eadfff] rounded-[9px] shadow-none">
-      <div className="p-4 bg-[#fff4fc] rounded-lg ">
+      <div className="p-4 bg-[#fff4fc] rounded-lg">
         <div className="flex justify-between items-center">
           <h3 className="font-medium text-slate-800 mb-1">שיחה על פרטי השיעור</h3>
           <button
@@ -279,38 +265,43 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                       {message.sender === 'user' ? (
                         <MdFace className="h-5 w-5 text-[darkslateblue]" />
                       ) : (
-                        // <div className="h-6 w-6 rounded-full bg-[darkmagenta] flex items-center justify-center text-white text-xs">
-                        //   AI
-                        // </div>
                         <SiProbot className="h-5 w-5 text-[darkmagenta]" />
                       )}
                     </div>
-                    <div
-                     className={`relative p-2 text-sm rounded-lg max-w-[80%] ${
-                        message.sender === 'user'
-                          ? 'bg-[darkslateblue] text-white px-[8px] pt-[3px] pb-[4px]'
-                          : 'bg-[honeydew] border rounded-md'
-                      }`}
-                    >
+                    <div className={`relative p-2 text-sm rounded-lg max-w-[80%] ${
+                      message.sender === 'user'
+                        ? 'bg-[darkslateblue] text-white px-[9px] pt-[3px] pb-[6px]'
+                        : 'bg-[honeydew] border rounded-md'
+                    }`}>
                       {renderMessageText(message.text)}
-                      {message.sender === 'ai' && (
-                        <div className="flex gap-2 mt-3 justify-start text-gray-800">
+                      <div className="flex gap-2 mt-2 justify-start">
+                        {message.sender === 'user' ? (
+                          <>
+                            <button
+                              onClick={() => handleResendMessage(message.text)}
+                              className="hover:text-[pink] transition-colors text-white"
+                              title="שלח שוב"
+                            >
+                              <ArrowPathIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleCopyMessage(message.text)}
+                              className="hover:text-[pink] transition-colors text-white"
+                              title="העתק הודעה"
+                            >
+                              <DocumentDuplicateIcon className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
                           <button
                             onClick={() => handleCopyMessage(message.text)}
-                            className="hover:text-[#540ba9] transition-colors"
+                            className="hover:text-[#540ba9] transition-colors text-gray-800"
                             title="העתק הודעה"
                           >
                             <DocumentDuplicateIcon className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => handleResendMessage(message.text)}
-                            className="hover:text-[#540ba9] transition-colors"
-                            title="שלח שוב"
-                          >
-                            <ArrowPathIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
