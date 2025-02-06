@@ -24,7 +24,7 @@ export const LessonBuilder = ({
   return (
     <div>
       <h1 className="text-[1.2rem] font-semibold text-[#540ba9]">בניית השיעור</h1>
-      <div dir='ltr' className='max-h-[calc(100vh-310px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md'>
+      <div dir='ltr' className='max-h-[calc(100vh-310px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#f2d8ff] hover:scrollbar-thumb-[#f2d8ff] scrollbar-thumb-rounded-md'>
         <div dir='rtl' className='space-y-4 p-4'>
           <h3 className="text-[1rem] font-normal my-2 text-[#540ba9]">פתיחה</h3>
           <LessonPhase
