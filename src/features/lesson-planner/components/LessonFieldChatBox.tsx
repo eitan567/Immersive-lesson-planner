@@ -243,7 +243,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
         return (
           <>
           <br/>
-          <Badge key={index} className="mx-1 float-left mt-[10px]">
+          <Badge key={index} className="mx-1 float-right mt-[10px]">
             {fieldName}
           </Badge>
           </>
@@ -326,10 +326,10 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                     <div className={`relative p-2 text-sm rounded-lg max-w-[80%] ${
                       message.sender === 'user'
                         ? 'bg-[darkslateblue] text-white px-[9px] pt-[3px] pb-[6px]'
-                        : 'bg-[honeydew] border rounded-md'
+                        : 'bg-[honeydew] border rounded-md min-w-[194px]'
                     }`}>
                       {renderMessageText(message.text)}
-                      <div className="flex gap-2 mt-2 justify-start">
+                      <div className="flex gap-2 mt-2 justify-end">
                         {message.sender === 'user' ? (
                           <>
                             <button
