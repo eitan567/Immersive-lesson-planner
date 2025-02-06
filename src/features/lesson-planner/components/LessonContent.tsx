@@ -74,7 +74,7 @@ export const LessonContent = ({
   };
 
   return (
-    <div className={cn("relative h-full pb-16", className)}>
+    <div className={cn("relative p-6 min-h-[calc(100vh-170px)] pb-16", className)}>
       <div className="space-y-4">
         {currentStep === 1 && (
           <>
@@ -117,7 +117,7 @@ export const LessonContent = ({
         )}
       </div>
       
-      <div className="absolute bottom-3 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0">
         <NavigationControls
           currentStep={currentStep}
           onPrevious={handlePrevious}

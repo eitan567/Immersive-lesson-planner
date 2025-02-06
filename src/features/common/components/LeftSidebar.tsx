@@ -33,7 +33,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
   return (
     <aside className="w-[30rem] border-r border-slate-200 shrink-0">
       <div className="fixed w-[30rem] p-6 space-y-6">
-        <Card>
+        <Card className='mb-4'>
           <CardContent className="p-4 space-y-2 bg-[#fff4fc]">
             <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>
             <div className="text-sm text-slate-600">
@@ -50,6 +50,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
           currentValues={currentValues}
           saveCurrentPlan={saveCurrentPlan}
           sections={sections}
+          className="h-[calc(100vh-470px)]"
         />
 
       </div>

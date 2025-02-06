@@ -6,6 +6,7 @@ import { useMcpTool } from '../../ai-assistant/hooks/useMcp.ts';
 import { Badge } from "../../../components/ui/badge.tsx";
 import { SiProbot } from "react-icons/si";
 import { MdFace } from "react-icons/md";
+import { cn } from "../../..//lib/utils.ts"
 import { XMarkIcon, PaperAirplaneIcon, ChatBubbleLeftRightIcon,
          DocumentDuplicateIcon, ArrowPathIcon
 } from '@heroicons/react/24/outline';
@@ -23,6 +24,7 @@ interface LessonFieldChatBoxProps {
   currentValues: Record<string, string>;
   sections: LessonPlanSections;
   saveCurrentPlan: () => Promise<void>;
+  className?: string;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -44,8 +46,20 @@ const FIELD_LABELS: Record<string, string> = {
   'summary.0.spaceUsage': 'סיכום - שימוש במרחב הפיזי'
 };
 
+const QUICK_ACTIONS = [
+  {text:'שפר את תוכן נושא היחידה',maxWidth:'max-w-[86px]'},
+  {text:'נסח מחדש מטרות ברמת התוכן',maxWidth:'max-w-[92px]'},
+  {text:'שפר מטרות ברמת המיומנויות',maxWidth:'max-w-[90px]'},
+  {text:'הצע רעיונות לפתיחת השיעור',maxWidth:'max-w-[86px]'},
+  {text:'שפר פעילות בגוף השיעור',maxWidth:'max-w-[86px] mt-[5px]'},
+  {text:'הצע זמן כולל',maxWidth:'min-w-[92px] mt-[5px] leading-7'},
+  {text:'שפר ידע קודם נדרש',maxWidth:'max-w-[90px] mt-[5px]'},
+  {text:'הצע שכבת גיל',maxWidth:'min-w-[86px] mt-[5px] leading-7'},
+];
+
 export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
   onUpdateField,
+  className,
   currentValues,
   sections,
   saveCurrentPlan
@@ -239,8 +253,23 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
     });
   };
 
+  const handleQuickAction = (action: string) => {
+    setCurrentMessage(action);
+    setShouldSend(true);
+  };
+
+  const renderQuickActions = () => (
+    <div className="flex flex-wrap gap-1 mb-3 text-center">
+      {QUICK_ACTIONS.map((action, index) => (
+        <Badge key={index} onClick={() => handleQuickAction(action.text)} className={cn("cursor-pointer hover:bg-[#c6a0f3] transition-colors border border-[#e6b8ff] text-black bg-[#f9d9ff] font-semibold text-[9px] px-[7px] pb-[1px]",action.maxWidth)}>
+          {action.text}
+        </Badge>
+      ))}
+    </div>
+  );
+
   return (
-    <Card className="mt-4 border border-[#eadfff] rounded-[9px] shadow-none">
+    <Card className="mt-0 border border-[#eadfff] rounded-[9px] shadow-none">
       <div className="p-4 bg-[#fff4fc] rounded-lg">
         <div className="flex justify-between items-center">
           <h3 className="font-medium text-slate-800 mb-1">שיחה על פרטי השיעור</h3>
@@ -258,7 +287,7 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
 
         {isOpen && (
           <div className="space-y-4">
-            <div ref={chatContainerRef} className="h-[calc(100vh-405px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md">
+            <div ref={chatContainerRef} className={cn("h-[calc(100vh-330px)] overflow-y-auto border rounded-lg p-3 mt-2 space-y-3 bg-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#681bc2] hover:scrollbar-thumb-[#681bc2] scrollbar-thumb-rounded-md",className)}>
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm p-4">
                   אפשר לבקש עזרה בניסוח, שיפור או שינוי של פרטי השיעור ומבנה השיעור.
@@ -338,6 +367,8 @@ export const LessonFieldChatBox: React.FC<LessonFieldChatBoxProps> = ({
                 </div>
               )}
             </div>
+
+            {renderQuickActions()}
 
             <div className="flex gap-2">
               <Input

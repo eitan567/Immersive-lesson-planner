@@ -94,6 +94,7 @@ const MainContent = React.memo(() => {
       contentGoals: lessonPlan?.contentGoals || '',
       skillGoals: lessonPlan?.skillGoals || ''
     },
+    sections: lessonPlan?.sections || { opening: [], main: [], summary: [] },
     saveCurrentPlan
   }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate, saveCurrentPlan]);
 
@@ -114,7 +115,8 @@ const MainContent = React.memo(() => {
       position: String(lessonPlan?.position || ''),
       contentGoals: lessonPlan?.contentGoals || '',
       skillGoals: lessonPlan?.skillGoals || ''
-    }
+    },
+    sections: lessonPlan?.sections || { opening: [], main: [], summary: [] }
   }), [saveInProgress, lastSaved, lessonPlan, handleFieldUpdate, saveCurrentPlan]);
 
   // Show loading spinner while auth is initializing

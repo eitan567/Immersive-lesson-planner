@@ -33,7 +33,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   return (
     <aside className="w-[30rem] border-l border-slate-200 shrink-0">
       <div className="w-[30rem] p-6 space-y-6">
-        <Card>
+        {/* <Card>
           <CardContent className="p-4 space-y-2 bg-[#fff4fc]">
             <h3 className="font-medium text-slate-800">סטטוס שיעור</h3>
             <div className="text-sm text-slate-600">
@@ -43,7 +43,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               {totalSteps} שלבים
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
         <LessonFieldChatBox
           onUpdateField={onUpdateField}
           currentValues={currentValues}
